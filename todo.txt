@@ -1,0 +1,26 @@
+Codevember 2019
+
+NOTES:
+
+    -frontend:
+	    -vuejs 
+
+    -backend:
+	    -firebase
+	    -write my own?
+		    -node.js?
+		    -flask?
+
+    -theme?
+	    -starship simulator?
+	    -financial sim?
+	    -office sim? like gamedevstory?
+	    -build a really fancy form?
+
+TODO:
+-figure out what I will actually build
+-learn some Typescript -- perhaps I'll use the fancy form idea from above for that...
+
+DONE:
+-scaffold a vue project with SCSS, Typescript and UT
+-make this file
