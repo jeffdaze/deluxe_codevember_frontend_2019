@@ -1,6 +1,10 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <button @click="test()">Test Button -- log</button>
+    <button @click="test2()">Test Button -- set val</button>
+
+    <h4>{{ someVal }}</h4>
   </div>
 </template>
 
@@ -10,6 +14,13 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 @Component
 export default class HelloWorld extends Vue {
   @Prop() private msg!: string;
+  someVal: string = 'test'
+  test (): void{
+    console.log('Ran a test method...')
+  }
+  test2 (): void{
+    this.someVal = 'set a new value!'
+  }
 }
 </script>
 
