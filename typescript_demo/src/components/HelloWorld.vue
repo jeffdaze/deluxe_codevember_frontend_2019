@@ -2,8 +2,9 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <button @click="test()">Test Button -- log</button>
-    <button @click="test2()">Test Button -- set val</button>
-
+    <p>
+      <button @click="test2()">Test Button -- set val</button><input type="text" v-model="fromForm">
+    </p>
     <h4>{{ someVal }}</h4>
   </div>
 </template>
@@ -15,11 +16,15 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 export default class HelloWorld extends Vue {
   @Prop() private msg!: string;
   someVal: string = 'test'
+  fromForm: string = ''
   test (): void{
     console.log('Ran a test method...')
   }
   test2 (): void{
-    this.someVal = 'set a new value!'
+    // set this value on click...
+    this.someVal = this.fromForm
+    // now clear the form...
+    this.fromForm = ''
   }
 }
 </script>
