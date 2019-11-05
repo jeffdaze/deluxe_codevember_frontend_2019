@@ -1,17 +1,16 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Now to ensure the build proess works and validate the end result..."/>
+    <CreditCard />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import HelloWorld from './components/HelloWorld.vue'
+import CreditCard from './components/CreditCard.vue'
 
 @Component({
   components: {
-    HelloWorld
+    CreditCard
   }
 })
 export default class App extends Vue {}

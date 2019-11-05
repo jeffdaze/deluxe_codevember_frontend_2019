@@ -20,6 +20,7 @@ NOTES:
 TODO:
 -figure out what I will actually build
 -learn some Typescript -- perhaps I'll use the fancy form idea from above for that...
+    -inspired by: https://github.com/muhammederdem/vue-interactive-paycard
 
 DONE:
 -scaffold a vue project with SCSS, Typescript and UT
