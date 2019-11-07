@@ -1,26 +1,28 @@
 <template>
 <div class="mainView">
 
-<div id="cardDisplay" :class="{'tiltView': focusSet}">CARD TEST</div>
+<div id="cardDisplay" :class="{'tiltView': focusSet}">CARD TEST
+    <div id="cdCCnum">{{ ccValue }}</div>
+</div>
 
   <div class="cardForm" :class="{'moveDown': focusSet}">
     <div class="formGroup">
         <div class="fieldLabel">Card Number:</div>
-        <div><input type="number" class="formInput" @focus="gotFocus()"></div>
+        <div><input type="number" class="formInput" @focus="gotFocus()" @blur="lostFocus()" @input="limitLength($event)" v-model="ccValue" maxlength="16"></div>
     </div>
     <div class="formGroup">
         <div class="fieldLabel">Cardholder Name:</div>
-        <div><input type="text" class="formInput" @focus="gotFocus()"></div>
+        <div><input type="text" class="formInput" @focus="gotFocus()" @blur="lostFocus()" v-model="ccName"></div>
     </div>
         <div>
             <div class="formSplit">
                 <div class="formGroup">
                     <div class="fieldLabel">Expiration:</div>
-                    <select @focus="gotFocus()">
+                    <select @focus="gotFocus()" @blur="lostFocus()">
                         <option value="" disabled selected>Month</option>
                         <option></option>
                     </select>
-                    <select @focus="gotFocus()">
+                    <select @focus="gotFocus()" @blur="lostFocus()">
                         <option value="" disabled selected>Year</option>
                         <option></option>
                     </select>
@@ -29,7 +31,7 @@
             <div class="formSplit">
                 <div class="formGroup">
                     <div class="fieldLabel">CVV:</div>
-                    <input type="number" class="formInput" @focus="gotFocus()">
+                    <input type="number" class="formInput" @focus="gotFocus()" @blur="lostFocus()">
                 </div>
             </div>
         </div>
@@ -48,7 +50,8 @@ export default class CreditCard extends Vue {
   someVal: string = 'test'
   fromForm: string = ''
   focusSet: boolean = false;
-
+  ccValue: number = '';
+  ccName: string = '';
   test (): void{
     console.log('Ran a test method...')
   }
@@ -61,6 +64,16 @@ export default class CreditCard extends Vue {
   gotFocus (): void{
     this.focusSet = true
   }
+  lostFocus (): void{
+    this.focusSet = false
+  }
+  limitLength (e): void{
+    let mLength: number = e.currentTarget.getAttribute('maxlength')
+
+    if (this.ccValue.length > mLength) {
+      this.ccValue = this.ccValue.slice(0, mLength)
+    }
+  }
 }
 </script>
 
@@ -69,6 +82,12 @@ export default class CreditCard extends Vue {
 INPUT {
     height: 20px;
     float: left;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 SELECT {
@@ -80,6 +99,8 @@ SELECT {
 
 .mainView {
     perspective: 600px;
+    width:800px;
+    margin:0 auto;
 }
 
 #cardDisplay {
@@ -135,6 +156,12 @@ SELECT {
     transform-origin: 100% 70%;
     transform: rotateY(-15deg);
     z-index:1000;
+}
+
+#cdCCnum {
+    position:relative;
+    margin-top:10px;
+    text-shadow: 0px -1px 0px rgba(255,255,255,.5);
 }
 
 h3 {
