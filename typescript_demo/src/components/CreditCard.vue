@@ -50,7 +50,7 @@ export default class CreditCard extends Vue {
   someVal: string = 'test'
   fromForm: string = ''
   focusSet: boolean = false;
-  ccValue: number = '';
+  ccValue: number | null = null;
   ccName: string = '';
   test (): void{
     console.log('Ran a test method...')
@@ -67,11 +67,16 @@ export default class CreditCard extends Vue {
   lostFocus (): void{
     this.focusSet = false
   }
-  limitLength (e): void{
+  limitLength (e: any): void{
     let mLength: number = e.currentTarget.getAttribute('maxlength')
+    let numString: string = ''
 
-    if (this.ccValue.length > mLength) {
-      this.ccValue = this.ccValue.slice(0, mLength)
+    if (this.ccValue) {
+      numString = this.ccValue.toString()
+    }
+
+    if (numString.length > mLength) {
+      this.ccValue = parseInt(numString.slice(0, mLength), 10)
     }
   }
 }
