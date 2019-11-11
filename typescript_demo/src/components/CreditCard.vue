@@ -94,13 +94,17 @@ export default class CreditCard extends Vue {
   limitLength (e: any, modelName: string): void{
     let mLength: number = e.currentTarget.getAttribute('maxlength')
     let numString: string = ''
+    let passedVal: number = e.target.value
+    // @TODO: need to figure out why this is freaking out about the type...
+    // perhaps I need to pass it as object?
+    let that: any = this
 
-    if (this[modelName]) {
-      numString = this[modelName].toString()
+    if (passedVal) {
+      numString = passedVal.toString()
     }
 
     if (numString.length > mLength) {
-      this[modelName] = parseInt(numString.slice(0, mLength), 10)
+      that[modelName] = parseInt(numString.slice(0, mLength), 10)
     }
   }
 }
