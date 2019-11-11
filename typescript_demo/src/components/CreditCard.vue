@@ -1,14 +1,16 @@
 <template>
 <div class="mainView">
 
-<div id="cardDisplay" :class="{'tiltView': focusSet}">CARD TEST
+<div id="cardDisplay" :class="{'tiltView': focusSet}" class="cdText">CREDIT CARD
     <div id="cdCCnum">{{ ccValue }}</div>
+    <div id="cdCCname">{{ ccName }}</div>
+    <div id="cdCCcvv">{{ ccCvv }}</div>
 </div>
 
   <div class="cardForm" :class="{'moveDown': focusSet}">
     <div class="formGroup">
         <div class="fieldLabel">Card Number:</div>
-        <div><input type="number" class="formInput" @focus="gotFocus()" @blur="lostFocus()" @input="limitLength($event)" v-model="ccValue" maxlength="16"></div>
+        <div><input type="number" class="formInput" @focus="gotFocus()" @blur="lostFocus()" @input="limitLength($event, 'ccValue')" v-model="ccValue" maxlength="16"></div>
     </div>
     <div class="formGroup">
         <div class="fieldLabel">Cardholder Name:</div>
@@ -52,7 +54,7 @@
             <div class="formSplit">
                 <div class="formGroup">
                     <div class="fieldLabel">CVV:</div>
-                    <input type="number" class="formInput" @focus="gotFocus()" @blur="lostFocus()">
+                    <input type="number" class="formInput" @focus="gotFocus()" @blur="lostFocus()" v-model="ccCvv" @input="limitLength($event, 'ccCvv')" maxlength="4">
                 </div>
             </div>
         </div>
@@ -89,16 +91,16 @@ export default class CreditCard extends Vue {
   lostFocus (): void{
     this.focusSet = false
   }
-  limitLength (e: any): void{
+  limitLength (e: any, modelName: string): void{
     let mLength: number = e.currentTarget.getAttribute('maxlength')
     let numString: string = ''
 
-    if (this.ccValue) {
-      numString = this.ccValue.toString()
+    if (this[modelName]) {
+      numString = this[modelName].toString()
     }
 
     if (numString.length > mLength) {
-      this.ccValue = parseInt(numString.slice(0, mLength), 10)
+      this[modelName] = parseInt(numString.slice(0, mLength), 10)
     }
   }
 }
@@ -138,8 +140,9 @@ SELECT {
     border-radius: 25px;
     width: 300px;
     height: 200px;
-    background: #e66c6c;
+    background: #a382e0;
     transition: all 0.8s;
+    color: rgb(94, 92, 92);
 }
 
 .formGroup {
@@ -187,8 +190,19 @@ SELECT {
 
 #cdCCnum {
     position:relative;
-    margin-top:10px;
-    text-shadow: 0px -1px 0px rgba(255,255,255,.5);
+    margin-top:50px;
+    font-size: 20px;
+}
+
+#cdCCname {
+  position:relative;
+  display:inline-block;
+  top: 60px;
+  left: -80px;
+}
+
+.cdText {
+  text-shadow: 0px -1px 0px rgba(255,255,255,.5);
 }
 
 h3 {
