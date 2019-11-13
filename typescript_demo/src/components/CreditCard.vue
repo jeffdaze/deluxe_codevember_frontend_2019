@@ -1,10 +1,14 @@
 <template>
 <div class="mainView">
 
-<div id="cardDisplay" :class="{'tiltView': focusSet}" class="cdText">CREDIT CARD
+<div id="cardDisplay" :class="{'tiltView': focusSet}" class="cdText front">CREDIT CARD
     <div id="cdCCnum">{{ ccValue }}</div>
+    <div id="cdExpiry">EXP: {{ ccMonth }} / {{ ccYear }}</div>
     <div id="cdCCname">{{ ccName }}</div>
-    <div id="cdCCcvv">{{ ccCvv }}</div>
+</div>
+
+<div id="cardDisplayBack">
+  <div id="cdCCcvv">{{ ccCvv }}</div>
 </div>
 
   <div class="cardForm" :class="{'moveDown': focusSet}">
@@ -20,7 +24,7 @@
             <div class="formSplit">
                 <div class="formGroup">
                     <div class="fieldLabel">Expiration:</div>
-                    <select @focus="gotFocus()" @blur="lostFocus()">
+                    <select @focus="gotFocus()" @blur="lostFocus()" v-model="ccMonth">
                         <option value="" disabled selected>Month</option>
                         <option value="01">January</option>
                         <option value="02">February</option>
@@ -35,19 +39,19 @@
                         <option value="11">November</option>
                         <option value="12">December</option>
                     </select>
-                    <select @focus="gotFocus()" @blur="lostFocus()">
+                    <select @focus="gotFocus()" @blur="lostFocus()" v-model="ccYear">
                         <option value="" disabled selected>Year</option>
-                        <option value="2019">2019</option>
-                        <option value="2020">2020</option>
-                        <option value="2021">2021</option>
-                        <option value="2022">2022</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                        <option value="2027">2027</option>
-                        <option value="2028">2028</option>
-                        <option value="2029">2029</option>
+                        <option value="19">2019</option>
+                        <option value="20">2020</option>
+                        <option value="21">2021</option>
+                        <option value="22">2022</option>
+                        <option value="23">2023</option>
+                        <option value="24">2024</option>
+                        <option value="25">2025</option>
+                        <option value="26">2026</option>
+                        <option value="27">2027</option>
+                        <option value="28">2028</option>
+                        <option value="29">2029</option>
                     </select>
                 </div>
             </div>
@@ -76,6 +80,9 @@ export default class CreditCard extends Vue {
   ccValue: number | null = null;
   ccCvv: number | null = null;
   ccName: string = '';
+  // even though these are technically numbers they will be handled like strings...
+  ccMonth: string = '';
+  ccYear: string = '';
   test (): void{
     console.log('Ran a test method...')
   }
@@ -147,6 +154,14 @@ SELECT {
     background: #a382e0;
     transition: all 0.8s;
     color: rgb(94, 92, 92);
+    /* generate random background */
+    background-image: url('https://source.unsplash.com/300x200/?abstract');
+    background-blend-mode: screen;
+}
+
+/* Hiding for now; will set this to be the back of the card eventually... */
+#cardDisplayBack {
+  display: none;
 }
 
 .formGroup {
@@ -195,14 +210,22 @@ SELECT {
 #cdCCnum {
     position:relative;
     margin-top:50px;
-    font-size: 20px;
+    font-size: 24px;
+}
+
+#cdExpiry {
+  margin-top:8px;
 }
 
 #cdCCname {
   position:relative;
   display:inline-block;
-  top: 60px;
+  top: 20px;
   left: -80px;
+}
+
+#cdCCcvv {
+  position:absolute;
 }
 
 .cdText {
