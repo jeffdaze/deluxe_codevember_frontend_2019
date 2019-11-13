@@ -1,14 +1,14 @@
 <template>
 <div class="mainView">
 
-<div id="cardDisplay" :class="{'tiltView': focusSet}" class="cdText front">CREDIT CARD
+<div :class="{'moveCard': focusSet, 'cvv': cvv}" class="cardDisplayBack card">
+  <div id="cdCCcvv">CVV: {{ ccCvv }}</div>
+</div>
+
+<div :class="{'moveCard': focusSet, 'tiltView': focusSet, 'flip': cardFlip}" class="cardDisplay cdText card">CREDIT CARD
     <div id="cdCCnum">{{ ccValue }}</div>
     <div id="cdExpiry">EXP: {{ ccMonth }} / {{ ccYear }}</div>
     <div id="cdCCname">{{ ccName }}</div>
-</div>
-
-<div id="cardDisplayBack">
-  <div id="cdCCcvv">{{ ccCvv }}</div>
 </div>
 
   <div class="cardForm" :class="{'moveDown': focusSet}">
@@ -58,7 +58,7 @@
             <div class="formSplit">
                 <div class="formGroup">
                     <div class="fieldLabel">CVV:</div>
-                    <input type="number" class="formInput" @focus="gotFocus()" @blur="lostFocus()" v-model="ccCvv" @input="limitLength($event, 'ccCvv')" maxlength="4">
+                    <input type="number" class="formInput" @focus="gotFocusCvv()" @blur="lostFocusCvv()" v-model="ccCvv" @input="limitLength($event, 'ccCvv')" maxlength="4">
                 </div>
             </div>
         </div>
@@ -83,6 +83,8 @@ export default class CreditCard extends Vue {
   // even though these are technically numbers they will be handled like strings...
   ccMonth: string = '';
   ccYear: string = '';
+  cardFlip: boolean = false;
+  cvv: boolean = false;
   test (): void{
     console.log('Ran a test method...')
   }
@@ -97,6 +99,16 @@ export default class CreditCard extends Vue {
   }
   lostFocus (): void{
     this.focusSet = false
+  }
+  gotFocusCvv (): void{
+    this.gotFocus()
+    this.cvv = true
+    this.cardFlip = true
+  }
+  lostFocusCvv (): void{
+    this.lostFocus()
+    this.cvv = false
+    this.cardFlip = false
   }
   limitLength (e: any, modelName: string): void{
     let mLength: number = e.currentTarget.getAttribute('maxlength')
@@ -143,25 +155,35 @@ SELECT {
     margin:0 auto;
 }
 
-#cardDisplay {
-    top: 10px;
-    right:300px;
-    position: absolute;
-    border:2px solid #000;
-    border-radius: 25px;
-    width: 300px;
-    height: 200px;
+.cardDisplay {
     background: #a382e0;
-    transition: all 0.8s;
-    color: rgb(94, 92, 92);
+
     /* generate random background */
     background-image: url('https://source.unsplash.com/300x200/?abstract');
     background-blend-mode: screen;
 }
 
 /* Hiding for now; will set this to be the back of the card eventually... */
-#cardDisplayBack {
-  display: none;
+.cardDisplayBack {
+    background: #7ebcf7;
+    transform: rotateY(-195deg);
+}
+
+.card {
+  top: 10px;
+  right:300px;
+  position: absolute;
+  transition: all 0.8s;
+  color: rgb(94, 92, 92);
+  border:2px solid #000;
+  border-radius: 25px;
+  width: 300px;
+  height: 200px;
+  backface-visibility: hidden;
+}
+
+.flip {
+  transform: rotateY(180deg) !important;
 }
 
 .formGroup {
@@ -199,12 +221,14 @@ SELECT {
     margin-top: 100px;
 }
 
+.moveCard {
+  top: -50px !important;
+  right: 10px !important;
+  z-index:1;
+}
+
 .tiltView {
-    top: -50px !important;
-    right: 10px !important;
-    transform-origin: 100% 70%;
     transform: rotateY(-15deg);
-    z-index:1000;
 }
 
 #cdCCnum {
@@ -226,6 +250,12 @@ SELECT {
 
 #cdCCcvv {
   position:absolute;
+  top:100px;
+  right:50px;
+}
+
+.cvv {
+  transform: rotateY(-15deg);
 }
 
 .cdText {
