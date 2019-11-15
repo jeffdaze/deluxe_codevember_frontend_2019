@@ -7,7 +7,7 @@
   <div id="cdCCcvv">CVV: {{ ccCvv }}</div>
 </div>
 
-<div :class="{'moveCard': focusSet, 'tiltView': focusSet, 'flip': cardFlip}" class="cardDisplay cdText card">CREDIT CARD
+<div :class="{'moveCard': focusSet, 'tiltView': focusSet, 'flip': cardFlip}" class="cardDisplay cdText card" :style="{ 'background-color': 'hsl('+HSLcolor+', 70%, 67%)' }">CREDIT CARD
     <div id="cdCCnum"><div class="ccQuad">{{ ccQuad1 }}</div><div class="ccQuad">{{ ccQuad2 }}</div><div class="ccQuad">{{ ccQuad3 }}</div><div class="ccQuad">{{ ccQuad4 }}</div></div>
     <div id="cdExpiry">EXP: <div class="ccDate">{{ ccMonth }}</div> / <div class="ccDate">{{ ccYear }}</div></div>
     <div id="cdCCname">{{ ccName }}</div>
@@ -79,6 +79,7 @@ export default class CreditCard extends Vue {
   someVal: string = 'test'
   fromForm: string = ''
   focusSet: boolean = false;
+  HSLcolor: number = this.randomHSL();
   ccValue: number | null = null;
   ccQuad1: number | null = null;
   ccQuad2: number | null = null;
@@ -99,6 +100,9 @@ export default class CreditCard extends Vue {
     this.someVal = this.fromForm
     // now clear the form...
     this.fromForm = ''
+  }
+  randomHSL (): number {
+    return Math.floor(Math.random() * 255)
   }
   gotFocus (): void{
     this.focusSet = true
@@ -128,13 +132,15 @@ export default class CreditCard extends Vue {
       numString = passedVal.toString()
     }
 
-    // now pass the value to the various 'quad' parts;
+    // now pass the value to the various CC number 'quad' parts;
     // this does not account for one card type that has a 5 number 'quad' in the middle (discovery?)
     // first 4 digits, then second set of 4 etc...
-    that.ccQuad1 = parseInt(numString.slice(0, 4), 10) || null
-    that.ccQuad2 = parseInt(numString.slice(4, 8), 10) || null
-    that.ccQuad3 = parseInt(numString.slice(8, 12), 10) || null
-    that.ccQuad4 = parseInt(numString.slice(12, 16), 10) || null
+    if (modelName === 'ccValue') {
+      that.ccQuad1 = parseInt(numString.slice(0, 4), 10) || null
+      that.ccQuad2 = parseInt(numString.slice(4, 8), 10) || null
+      that.ccQuad3 = parseInt(numString.slice(8, 12), 10) || null
+      that.ccQuad4 = parseInt(numString.slice(12, 16), 10) || null
+    }
 
     if (numString.length > mLength) {
       that[modelName] = parseInt(numString.slice(0, mLength), 10)
@@ -258,13 +264,13 @@ SELECT {
 
 #cdCCnum {
     position:relative;
-    margin:30px auto;
+    margin:50px auto;
     font-size: 24px;
     width:240px;
 }
 
 #cdExpiry {
-  margin-top:2px;
+  margin-top:-30px;
 }
 
 #cdCCname {
