@@ -2,12 +2,14 @@
 <div class="mainView">
 
 <div :class="{'moveCard': focusSet, 'cvv': cvv}" class="cardDisplayBack card">
+  <div id="cdMagstrip"></div>
+  <div id="cdSignature"></div>
   <div id="cdCCcvv">CVV: {{ ccCvv }}</div>
 </div>
 
 <div :class="{'moveCard': focusSet, 'tiltView': focusSet, 'flip': cardFlip}" class="cardDisplay cdText card">CREDIT CARD
-    <div id="cdCCnum">{{ ccValue }}</div>
-    <div id="cdExpiry">EXP: {{ ccMonth }} / {{ ccYear }}</div>
+    <div id="cdCCnum"><div class="ccQuad">{{ ccQuad1 }}</div><div class="ccQuad">{{ ccQuad2 }}</div><div class="ccQuad">{{ ccQuad3 }}</div><div class="ccQuad">{{ ccQuad4 }}</div></div>
+    <div id="cdExpiry">EXP: <div class="ccDate">{{ ccMonth }}</div> / <div class="ccDate">{{ ccYear }}</div></div>
     <div id="cdCCname">{{ ccName }}</div>
 </div>
 
@@ -78,6 +80,10 @@ export default class CreditCard extends Vue {
   fromForm: string = ''
   focusSet: boolean = false;
   ccValue: number | null = null;
+  ccQuad1: number | null = null;
+  ccQuad2: number | null = null;
+  ccQuad3: number | null = null;
+  ccQuad4: number | null = null;
   ccCvv: number | null = null;
   ccName: string = '';
   // even though these are technically numbers they will be handled like strings...
@@ -122,6 +128,14 @@ export default class CreditCard extends Vue {
       numString = passedVal.toString()
     }
 
+    // now pass the value to the various 'quad' parts;
+    // this does not account for one card type that has a 5 number 'quad' in the middle (discovery?)
+    // first 4 digits, then second set of 4 etc...
+    that.ccQuad1 = parseInt(numString.slice(0, 4), 10) || null
+    that.ccQuad2 = parseInt(numString.slice(4, 8), 10) || null
+    that.ccQuad3 = parseInt(numString.slice(8, 12), 10) || null
+    that.ccQuad4 = parseInt(numString.slice(12, 16), 10) || null
+
     if (numString.length > mLength) {
       that[modelName] = parseInt(numString.slice(0, mLength), 10)
     }
@@ -156,8 +170,7 @@ SELECT {
 }
 
 .cardDisplay {
-    background: #a382e0;
-
+    background: hsl(270, 70%, 67%);
     /* generate random background */
     background-image: url('https://source.unsplash.com/300x200/?abstract');
     background-blend-mode: screen;
@@ -165,7 +178,7 @@ SELECT {
 
 /* Hiding for now; will set this to be the back of the card eventually... */
 .cardDisplayBack {
-    background: #7ebcf7;
+    background: #f0f5fa;
     transform: rotateY(-195deg);
 }
 
@@ -231,14 +244,27 @@ SELECT {
     transform: rotateY(-15deg);
 }
 
+.ccQuad {
+  margin-right:5px;
+  display:inline-block;
+  text-align: left;
+  width:55px;
+}
+
+.ccDate {
+  display: inline-block;
+  width: 20px;
+}
+
 #cdCCnum {
     position:relative;
-    margin-top:50px;
+    margin:30px auto;
     font-size: 24px;
+    width:240px;
 }
 
 #cdExpiry {
-  margin-top:8px;
+  margin-top:2px;
 }
 
 #cdCCname {
@@ -250,8 +276,27 @@ SELECT {
 
 #cdCCcvv {
   position:absolute;
-  top:100px;
-  right:50px;
+  width:80px;
+  top:90px;
+  right:25px;
+  text-align: left;
+}
+
+#cdMagstrip {
+  position:absolute;
+  top:25px;
+  height:30px;
+  width:100%;
+  background:#222222;
+}
+
+#cdSignature {
+  position:absolute;
+  top:80px;
+  left:10px;
+  height:40px;
+  width:180px;
+  background: rgb(243, 238, 238) url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAa0lEQVQoU2NkgIKmQ37/6+w2MYK4xpnX/h9piWDgFL4E54MZhBSdna7FyEiMIpBhYBNxWQcyCWYjTjchKwK5nRGbw9EVga3+/lbvP7LvsCkCGYbiRlyKdtW2QDwD0oFPkbDUMogbCSkCGQYAka1/qtQO9d8AAAAASUVORK5CYII=');
 }
 
 .cvv {
