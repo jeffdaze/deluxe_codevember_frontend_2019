@@ -19,9 +19,18 @@ NOTES:
 
 TODO:
 -figure out what I will actually build
--learn some Typescript -- perhaps I'll use the fancy form idea from above for that...
-    -inspired by: https://github.com/muhammederdem/vue-interactive-paycard
+-office sim
+	-use a kanban style interface
+	-have several different chars that have different skills
+		-BA
+		-Coder
+		-Tester
+	-get jobs; and earn money for completion.
+
 
 DONE:
 -scaffold a vue project with SCSS, Typescript and UT
 -make this file
+-learn some Typescript -- perhaps I'll use the fancy form idea from above for that...
+    -inspired by: https://github.com/muhammederdem/vue-interactive-paycard
+-scaffold *ANOTHER* vue project with SCSS, Typescript and UT
