@@ -18,7 +18,25 @@ NOTES:
 	    -build a really fancy form?
 
 TODO:
--figure out what I will actually build
+-small progress bar component to use in many places!
+
+-create character blocks
+	-cost to hire or recurring cost?
+		-cost to hire is easier / faster
+	-random selection or can choose from set?
+		-random is easier / faster
+	-use some fontawesome icons with unique color so it's easier to differentiate?
+
+
+-starting char can do all jobs
+-other chars are single class or two
+-can train chars to be better
+
+-'timer' events can be good or bad
+
+
+
+DESIGN:
 -office sim
 	-use a kanban style interface
 	-have several different chars that have different skills
@@ -26,6 +44,11 @@ TODO:
 		-Coder
 		-Tester
 	-get jobs; and earn money for completion.
+	-timer for events (maybe x number of turns before events)
+		-trade show
+		-holiday
+		-new tech
+
 
 
 DONE:
@@ -34,3 +57,5 @@ DONE:
 -learn some Typescript -- perhaps I'll use the fancy form idea from above for that...
     -inspired by: https://github.com/muhammederdem/vue-interactive-paycard
 -scaffold *ANOTHER* vue project with SCSS, Typescript and UT
+-figure out what I will actually build
+-add FontAwesome icons
