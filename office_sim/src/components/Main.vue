@@ -23,8 +23,6 @@
         Done
     </div>
 
-    
-
   </div>
 </template>
 
@@ -67,12 +65,11 @@ a {
 }
 
 .boardCell {
-    border: 1px solid #000000;
-    width:210px;
-    height:320px;
-    margin-right:20px;
-    display:inline-block;
-    overflow: auto;
+  border: 1px solid #000000;
+  width: 210px;
+  height: 320px;
+  margin-right: 20px;
+  display: inline-block;
+  overflow: auto;
 }
-
 </style>

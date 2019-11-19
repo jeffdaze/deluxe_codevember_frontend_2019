@@ -1,6 +1,7 @@
 <template>
   <div class="card">
     <img :src="icon" />
+    <font-awesome-icon icon="user-secret" />
     <div class="projectName">{{ projectName }}</div>
     <div class="projectState">{{ projectState }}</div>
 
