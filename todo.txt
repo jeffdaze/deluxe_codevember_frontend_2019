@@ -18,8 +18,6 @@ NOTES:
 	    -build a really fancy form?
 
 TODO:
--small progress bar component to use in many places!
-
 -create character blocks
 	-cost to hire or recurring cost?
 		-cost to hire is easier / faster
@@ -59,3 +57,4 @@ DONE:
 -scaffold *ANOTHER* vue project with SCSS, Typescript and UT
 -figure out what I will actually build
 -add FontAwesome icons
+-small progress bar component to use in many places!

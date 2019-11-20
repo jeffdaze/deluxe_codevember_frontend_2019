@@ -22,17 +22,21 @@
     <div id="done" class="boardCell">
         Done
     </div>
-
+  <div class="eventStream">
+    <Progress eventLabel="Test" total="50" :currentVal="this.$store.getters.getFunds" />
+  </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import Card from "@/components/Card.vue";
+import Progress from "@/components/Progress.vue";
 
 @Component({
     components: {
-        Card
+        Card,
+        Progress
     }
 })
 export default class Main extends Vue {
