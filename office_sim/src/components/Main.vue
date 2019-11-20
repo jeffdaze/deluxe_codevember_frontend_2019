@@ -6,7 +6,7 @@
     <div class="currentFunds">Current Funds: {{ this.$store.getters.getFunds }}</div>
 
     <div id="jobBoard" class="boardCell">
-        Project Listings
+        TODO
 
         <div v-for="x in cardSet" v-bind:key="x">
             <Card />
@@ -20,11 +20,30 @@
         Coding
     </div>
     <div id="done" class="boardCell">
-        Done
+        Testing
     </div>
   <div class="eventStream">
-    <Progress eventLabel="Test" total="50" :currentVal="this.$store.getters.getFunds" />
+    <Progress :eventLabel="currentEvent" :total="currentTurnLimit" :currentVal="currentTurnCount" />
   </div>
+
+  <div class="staffSeats">
+    <div v-for="employeeIndex in staffSeats" v-bind:key="employeeIndex" class="staffCard">
+      <div v-if="staff[(employeeIndex - 1)]">
+
+        <div class="staffTitle">{{ staff[(employeeIndex - 1)].type }}</div>
+
+        <div v-for="(skill, idx) in staff[(employeeIndex - 1)].skills" :key="idx" class="staffSkills">
+
+          {{skill.title }}: {{skill.level}}
+        
+        </div>
+      </div>
+      <div v-else class="emptySeat">
+        Help Wanted
+      </div>
+    </div>
+  </div>
+
   </div>
 </template>
 
@@ -43,6 +62,31 @@ export default class Main extends Vue {
   /* @Prop() private msg!: string; */
     jobBid: number = 0;
     cardSet: number = 8;
+
+    //how many employees can currently be hired in the company...
+    staffSeats: number = 4;
+
+    //total turns? game ends after x turns...
+    turnCount: number = 0;
+
+    //event handling; after x turns we'll have an event with some effect...
+    currentEvent: string = "";
+    currentTurnCount: number = 0;
+    currentTurnLimit: number = 0;
+
+    //array of all employees with their skills and skill levels...
+    //kind of hate how it makes me use arrays and doesn't like duplicate keys...
+    staff: Array<any> = [
+      {
+        "type": "CEO",
+        "skills": [
+          {"title": "BA", "level": 1 },
+          {"title": "Coder", "level": 1 },
+          {"title": "Tester", "level": 1}
+        ]
+      }
+    ]; 
+
     addFunds(amt: number): void{
         this.$store.commit('addFunds', amt);
     }
@@ -75,5 +119,35 @@ a {
   margin-right: 20px;
   display: inline-block;
   overflow: auto;
+}
+
+.staffSeats {
+  height: 100px;
+  width: 100%;
+}
+
+.staffCard {
+  display: inline-block;
+  float:left;
+  width: 80px;
+  height: 86px;
+  border: 1px solid #333333;
+  margin: 10px;
+}
+
+.staffTitle {
+  margin:2px;
+}
+
+.staffSkills {
+  font-size: 10px;
+  text-align: right;
+  margin-right:20px;
+}
+
+.emptySeat {
+  margin-top:20px;
+  text-align: center;
+  color: rgb(199, 196, 196);
 }
 </style>
