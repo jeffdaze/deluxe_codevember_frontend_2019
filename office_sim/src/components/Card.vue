@@ -1,9 +1,9 @@
 <template>
   <div class="card">
-    <img :src="icon" />
-    <font-awesome-icon icon="user-secret" />
+    <font-awesome-icon :icon="icon" />
     <div class="projectName">{{ projectName }}</div>
     <div class="projectState">{{ projectState }}</div>
+    <div class="challenge">{{ challenge }}</div>
 
   </div>
 </template>
@@ -13,11 +13,10 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class Card extends Vue {
-  /* @Prop() private msg!: string; */
-    projectName: string = "Test Project";
-    // probably put this in the vuex store...
-    projectState: string = "Planning";
-    icon: string = "";
+  @Prop() private projectName: string;
+  @Prop() private projectState!: string;
+  @Prop() private icon: string;
+  @Prop() private challenge!: number;
 }
 </script>
 

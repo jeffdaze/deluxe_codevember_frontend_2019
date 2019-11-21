@@ -9,7 +9,7 @@
         TODO
 
         <div v-for="x in cardSet" v-bind:key="x">
-            <Card />
+            <Card projectName="test" projectState="" icon="user-secret" />
         </div>
 
     </div>
@@ -73,6 +73,27 @@ export default class Main extends Vue {
     currentEvent: string = "";
     currentTurnCount: number = 0;
     currentTurnLimit: number = 0;
+
+    //jobs, training etc....
+    actions: Array<any> = [
+      {
+        "title": "Test",
+        "icon": "",
+
+      }
+    ];
+
+    planning: Array<any> = [
+
+    ];
+
+    coding: Array<any> = [
+
+    ];
+
+    testing: Array<any> = [
+
+    ];
 
     //array of all employees with their skills and skill levels...
     //kind of hate how it makes me use arrays and doesn't like duplicate keys...
