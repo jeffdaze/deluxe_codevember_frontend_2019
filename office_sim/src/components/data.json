@@ -1,0 +1,15 @@
+{
+    "title1":[
+        "Cubex","Emphael","Toolbus","MinPuble","Orbindow","Dylus","Multiver","Tranic","Gammer","Langule","Icefuture","Blockify","Resink",
+        "Myngo3", "Kration", "mIcon", "BuStat", "Vexfloomi", "Syntatore", "Mockstalk", "mcms7"
+    ],
+    "title2":[
+        "Servers", "Apps", "DB", "Network", "Interface", "Cloud", "Hub", "Dev", "Cert", "Login", "Deploy", "Integration", "Module", "Instance", 
+        "Environment", "VM", "Site", "UI/UX", "Rollout", "Security", "Social", "Mobile"
+
+    ],
+    "iconList":[
+        "globe", "archive", "atom", "award", "bacon", "bitbucket", "bolt", "chart-pie", "credit-card", "cubes", "diagnoses", "dice-d20", "flask",
+        "git-alt", "hdd", "mandalorian", "money-check", "network-wired", "vuejs"
+    ]
+}

@@ -1,49 +1,63 @@
 <template>
   <div class="main">
-    <button>Get Job ${{ jobBid }}</button>
+    <button @click="generateName()">Get Job ${{ jobBid }}</button>
     <button @click="addFunds(10)">Add funds $10</button>
 
-    <div class="currentFunds">Current Funds: {{ this.$store.getters.getFunds }}</div>
+    <div class="currentFunds">
+      Current Funds: {{ this.$store.getters.getFunds }}
+    </div>
 
     <div id="jobBoard" class="boardCell">
-        TODO
+      TODO
 
-        <div v-for="x in cardSet" v-bind:key="x">
-            <Card projectName="test" projectState="" icon="user-secret" />
-        </div>
-
+      <div v-for="(card, idx) in todo" v-bind:key="idx">
+        <Card
+          :projectName="card.title"
+          :projectState="card.state"
+          :icon="card.icon"
+          :challenge="card.challenge"
+        />
+      </div>
     </div>
     <div id="planning" class="boardCell">
-        Planning
+      Planning
     </div>
     <div id="coding" class="boardCell">
-        Coding
+      Coding
     </div>
     <div id="done" class="boardCell">
-        Testing
+      Testing
     </div>
-  <div class="eventStream">
-    <Progress :eventLabel="currentEvent" :total="currentTurnLimit" :currentVal="currentTurnCount" />
-  </div>
+    <div class="eventStream">
+      <Progress
+        :eventLabel="currentEvent"
+        :total="currentTurnLimit"
+        :currentVal="currentTurnCount"
+      />
+    </div>
 
-  <div class="staffSeats">
-    <div v-for="employeeIndex in staffSeats" v-bind:key="employeeIndex" class="staffCard">
-      <div v-if="staff[(employeeIndex - 1)]">
+    <div class="staffSeats">
+      <div
+        v-for="employeeIndex in staffSeats"
+        v-bind:key="employeeIndex"
+        class="staffCard"
+      >
+        <div v-if="staff[employeeIndex - 1]">
+          <div class="staffTitle">{{ staff[employeeIndex - 1].type }}</div>
 
-        <div class="staffTitle">{{ staff[(employeeIndex - 1)].type }}</div>
-
-        <div v-for="(skill, idx) in staff[(employeeIndex - 1)].skills" :key="idx" class="staffSkills">
-
-          {{skill.title }}: {{skill.level}}
-        
+          <div
+            v-for="(skill, idx) in staff[employeeIndex - 1].skills"
+            :key="idx"
+            class="staffSkills"
+          >
+            {{ skill.title }}: {{ skill.level }}
+          </div>
+        </div>
+        <div v-else class="emptySeat">
+          Help Wanted
         </div>
       </div>
-      <div v-else class="emptySeat">
-        Help Wanted
-      </div>
     </div>
-  </div>
-
   </div>
 </template>
 
@@ -51,66 +65,115 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import Card from "@/components/Card.vue";
 import Progress from "@/components/Progress.vue";
+import { title1, title2, iconList } from "./data.json";
 
 @Component({
-    components: {
-        Card,
-        Progress
-    }
+  components: {
+    Card,
+    Progress
+  }
 })
 export default class Main extends Vue {
   /* @Prop() private msg!: string; */
-    jobBid: number = 0;
-    cardSet: number = 8;
+  jobBid: number = 0;
+  cardSet: number = 8;
 
-    //how many employees can currently be hired in the company...
-    staffSeats: number = 4;
+  //how many employees can currently be hired in the company...
+  staffSeats: number = 4;
 
-    //total turns? game ends after x turns...
-    turnCount: number = 0;
+  //total turns? game ends after x turns...
+  turnCount: number = 0;
 
-    //event handling; after x turns we'll have an event with some effect...
-    currentEvent: string = "";
-    currentTurnCount: number = 0;
-    currentTurnLimit: number = 0;
+  //event handling; after x turns we'll have an event with some effect...
+  currentEvent: string = "";
+  currentTurnCount: number = 0;
+  currentTurnLimit: number = 0;
 
-    //jobs, training etc....
-    actions: Array<any> = [
-      {
-        "title": "Test",
-        "icon": "",
+  //values for random generator...
+  projectNameList = title1;
+  projectTypeList = title2;
+  projectIconList = iconList;
 
-      }
-    ];
+  //random gen test...
+  generateName(): void {
+    window.console.log(this.projectNameList);
+  }
 
-    planning: Array<any> = [
+  //jobs, training etc....
+  todo: Array<any> = [
+    {
+      "title": "Hello World!",
+      "icon": "globe",
+      "state": "todo",
+      "challenge": 1
 
-    ];
-
-    coding: Array<any> = [
-
-    ];
-
-    testing: Array<any> = [
-
-    ];
-
-    //array of all employees with their skills and skill levels...
-    //kind of hate how it makes me use arrays and doesn't like duplicate keys...
-    staff: Array<any> = [
-      {
-        "type": "CEO",
-        "skills": [
-          {"title": "BA", "level": 1 },
-          {"title": "Coder", "level": 1 },
-          {"title": "Tester", "level": 1}
-        ]
-      }
-    ]; 
-
-    addFunds(amt: number): void{
-        this.$store.commit('addFunds', amt);
     }
+  ];
+
+  planning: Array<any> = [
+
+  ];
+
+  coding: Array<any> = [
+
+  ];
+
+  testing: Array<any> = [
+
+  ];
+
+  //board manipulation methods...
+
+  //make a new job object...
+  buildRandomJob(): any{
+    //might switch this to use an interface once I've settled on a job object format...
+    let jobObj: any = {
+      
+    }
+
+    return jobObj;
+  }
+
+  addJob(arr: Array<any>): void {
+    //this should generate a job object for us to add to the array...
+    let newJob = this.buildRandomJob();
+    arr.push(newJob);
+  }
+
+  doTask(): void {
+
+  }
+
+  checkSkills(): boolean {
+    return true;
+  }
+
+  chooseUser(): void {
+
+  }
+
+  chooseJob(): void {
+
+  }
+
+
+  //array of all employees with their skills and skill levels...
+  //kind of hate how it makes me use arrays and doesn't like duplicate keys...
+  staff: Array<any> = [
+    {
+      "type": "CEO",
+      "skills": [
+        {"title": "BA", "level": 1 },
+        {"title": "Coder", "level": 1 },
+        {"title": "Tester", "level": 1}
+      ]
+    }
+  ]; 
+
+  addFunds(amt: number): void {
+      this.$store.commit('addFunds', amt);
+  }
+
 }
 
 
