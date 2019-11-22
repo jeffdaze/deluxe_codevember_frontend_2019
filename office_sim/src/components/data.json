@@ -9,7 +9,8 @@
 
     ],
     "iconList":[
-        "globe", "archive", "atom", "award", "bacon", "bitbucket", "bolt", "chart-pie", "credit-card", "cubes", "diagnoses", "dice-d20", "flask",
-        "git-alt", "hdd", "mandalorian", "money-check", "network-wired", "vuejs"
+        ["fas", "globe"], ["fas", "archive"], ["fas", "atom"], ["fas", "award"], ["fas", "bacon"], ["fab", "bitbucket"], ["fas", "bolt"], ["fas", "chart-pie"], 
+        ["fas", "credit-card"], ["fas", "cubes"], ["fas", "diagnoses"], ["fas", "dice-d20"], 
+        ["fas", "flask"], ["fab", "git-alt"], ["fas", "hdd"], ["fab", "mandalorian"], ["fas", "money-check"], ["fas", "network-wired"], ["fab", "vuejs"]
     ]
 }

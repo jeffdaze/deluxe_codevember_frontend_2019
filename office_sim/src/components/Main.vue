@@ -1,6 +1,9 @@
 <template>
   <div class="main">
-    <button @click="generateName()">Get Job ${{ jobBid }}</button>
+    <div v-if="projectEntityIcon != ''">
+      {{ projectEntity }} <font-awesome-icon :icon="projectEntityIcon" />
+    </div>
+    <button @click="generateName()">Generate Random Project</button>
     <button @click="addFunds(10)">Add funds $10</button>
 
     <div class="currentFunds">
@@ -78,6 +81,9 @@ export default class Main extends Vue {
   jobBid: number = 0;
   cardSet: number = 8;
 
+  projectEntity: string = "";
+  projectEntityIcon: Array<string> = []; 
+
   //how many employees can currently be hired in the company...
   staffSeats: number = 4;
 
@@ -96,7 +102,13 @@ export default class Main extends Vue {
 
   //random gen test...
   generateName(): void {
-    window.console.log(this.projectNameList);
+
+    let pName = this.projectNameList[Math.floor(Math.random()*this.projectNameList.length)];
+    let pType = this.projectTypeList[Math.floor(Math.random()*this.projectTypeList.length)];
+
+    this.projectEntityIcon = this.projectIconList[Math.floor(Math.random()*this.projectIconList.length)];
+    this.projectEntity = pName +" "+ pType;
+    
   }
 
   //jobs, training etc....
