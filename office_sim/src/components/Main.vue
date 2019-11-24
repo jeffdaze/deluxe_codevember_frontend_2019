@@ -5,6 +5,7 @@
     </div>
     <button @click="generateName()">Generate Random Project</button>
     <button @click="addFunds(10)">Add funds $10</button>
+    <button @click="init()">Init</button>
 
     <div class="currentFunds">
       Current Funds: {{ this.$store.getters.getFunds }}
@@ -38,9 +39,29 @@
     </div>
     <div id="coding" class="boardCell">
       Coding
+
+      <div v-for="(card, idx) in coding" v-bind:key="idx">
+        <Card
+          :projectName="card.title"
+          :projectState="card.state"
+          :icon="card.icon"
+          :challenge="card.challenge"
+          @click.native="cardClick(idx, 'job', card)"
+        />
+      </div>
     </div>
     <div id="done" class="boardCell">
       Testing
+
+      <div v-for="(card, idx) in testing" v-bind:key="idx">
+        <Card
+          :projectName="card.title"
+          :projectState="card.state"
+          :icon="card.icon"
+          :challenge="card.challenge"
+          @click.native="cardClick(idx, 'job', card)"
+        />
+      </div>
     </div>
     <div class="eventStream">
       <Progress
@@ -111,8 +132,8 @@ export default class Main extends Vue {
   staffClicked: boolean = false;
   jobClicked: boolean = false;
 
-  currentStaffIndex: number = 0;
-  currentJobIndex: number = 0;
+  currentStaffIndex: number | null = null;
+  currentJobIndex: number | null = null;
   //because the job can come from any column we need to copy it here...
   currentJobObject: any = {};
 
@@ -172,32 +193,111 @@ export default class Main extends Vue {
 
     //some data for the items; staff will always come from staff
     //the other arrays are set by the type...
-    let selectedStaff: any = this.staff[this.currentStaffIndex];
+    if(this.currentStaffIndex){
+      let selectedStaff: any = this.staff[this.currentStaffIndex];
+    }
     
-
     if(type == "job"){
       //use the state value to figure out what happens next...
       this.jobClicked = true;
       //set data about selected job...
       this.currentJobObject = object;
       this.currentJobIndex = index;
-      
     }
-
-    
-    
 
     //now that values are set, see if we can complete the action...
     if(this.jobClicked && this.staffClicked){
       //todo can be done by anyone; just moves the card into the planning phase...
       if(this.currentJobObject.state == "todo"){
+        //update the item state to the next column...
+        this.currentJobObject.state = "planning";
         //copy it into the next column...
         this.planning.push(this.currentJobObject);
         //and remove it from the original array...
-        this.todo.splice(this.currentJobIndex, 1);
+        //typescript is a little overzelous -- currentJobIndex is set along with jobClicked;
+        //might bundle all these into an object for refactor improvement...
+        if(this.currentJobIndex !== null){
+          this.todo.splice(this.currentJobIndex, 1);
+        }
+
+        //now we reset so we don't trigger the rest of the calls...
+        //reset the tracking...
+        this.resetClickState();
+
+        //increment a turn...
+        this.incrementTurn(1);
       }
+
+      //other types of task require a specific set of skills...
+      //may refactor this as there is a lot of repeated code here...
+      if(this.currentJobObject.state == "planning"){
+        //see what the staff memeber can do; BAs can analyze things in planning...
+        if(this.findSkill("BA", this.staff[this.currentStaffIndex].skills)){
+          this.currentJobObject.state = "coding";
+          this.coding.push(this.currentJobObject);
+          if(this.currentJobIndex !== null){
+            this.planning.splice(this.currentJobIndex, 1);
+          }
+        }else{
+          //reset the job click...
+          this.resetJob();
+        }
+      } 
+
+      if(this.currentJobObject.state == "coding"){
+        //see what the staff memeber can do; BAs can analyze things in planning...
+        if("Coder" in this.staff[this.currentStaffIndex].skills){
+          this.currentJobObject.state = "testing";
+          this.testing.push(this.currentJobObject);
+          if(this.currentJobIndex !== null){
+            this.coding.splice(this.currentJobIndex, 1);
+          }
+        }else{
+          //reset the job click...
+          this.resetJob();
+        }
+      } 
+
     }
 
+  }
+
+  findSkill(skill: string, skillList: Array<any>): boolean{
+    for(let i:number=0;i < skillList.length; i++){
+      if(skillList[i].title == skill){
+        return true;
+      }
+    }
+    return false;
+
+  }
+
+  incrementTurn(count: number): void{
+    this.turnCount += count;
+
+    if(this.currentTurnCount < this.currentTurnLimit){
+      this.currentTurnCount += count;
+    } else {
+      this.currentTurnCount = count;
+    }
+  }
+
+  resetClickState(): void{
+    this.resetStaff();
+    this.resetJob(); 
+  }
+
+  resetStaff(): void{
+    //staff properties...
+    this.staffClicked = false;
+    this.currentStaffIndex = null;
+  }
+
+  resetJob(): void{
+    //job properties...
+    this.jobClicked = false;
+    this.currentJobIndex = null;
+    this.currentJobObject = {};
   }
 
   //make a new job object...
@@ -216,20 +316,10 @@ export default class Main extends Vue {
     arr.push(newJob);
   }
 
-  doTask(): void {
-
-  }
-
-  checkSkills(): boolean {
-    return true;
-  }
-
-  chooseUser(): void {
-
-  }
-
-  chooseJob(): void {
-
+  init(): void{
+    //set some values to start...
+    this.currentTurnLimit = 10;
+    this.currentEvent = "First Quarter Report";
   }
 
 
