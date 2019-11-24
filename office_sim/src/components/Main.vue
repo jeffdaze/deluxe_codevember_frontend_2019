@@ -19,11 +19,22 @@
           :projectState="card.state"
           :icon="card.icon"
           :challenge="card.challenge"
+          @click.native="cardClick(idx, 'job', card)"
         />
       </div>
     </div>
     <div id="planning" class="boardCell">
       Planning
+
+      <div v-for="(card, idx) in planning" v-bind:key="idx">
+        <Card
+          :projectName="card.title"
+          :projectState="card.state"
+          :icon="card.icon"
+          :challenge="card.challenge"
+          @click.native="cardClick(idx, 'job', card)"
+        />
+      </div>
     </div>
     <div id="coding" class="boardCell">
       Coding
@@ -44,6 +55,7 @@
         v-for="employeeIndex in staffSeats"
         v-bind:key="employeeIndex"
         class="staffCard"
+        @click="cardClick(employeeIndex - 1, 'staff', {})"
       >
         <div v-if="staff[employeeIndex - 1]">
           <div class="staffTitle">{{ staff[employeeIndex - 1].type }}</div>
@@ -95,6 +107,15 @@ export default class Main extends Vue {
   currentTurnCount: number = 0;
   currentTurnLimit: number = 0;
 
+  //event handling boolean flags to match user with a job...
+  staffClicked: boolean = false;
+  jobClicked: boolean = false;
+
+  currentStaffIndex: number = 0;
+  currentJobIndex: number = 0;
+  //because the job can come from any column we need to copy it here...
+  currentJobObject: any = {};
+
   //values for random generator...
   projectNameList = title1;
   projectTypeList = title2;
@@ -135,6 +156,49 @@ export default class Main extends Vue {
   ];
 
   //board manipulation methods...
+  cardClick(index: number, type: string, object: any): void{
+
+    window.console.log("clicked:", index, type, object);
+
+    //figure out what kind of card this is and parse it appropriately;
+    //also set flags to make sure we can perform the job with the person selected...
+    //clicked on an employee
+    if(type == "staff"){
+      //set flag for checking...
+      this.staffClicked = true;
+      //set data about the selected staff...
+      this.currentStaffIndex = index;
+    }
+
+    //some data for the items; staff will always come from staff
+    //the other arrays are set by the type...
+    let selectedStaff: any = this.staff[this.currentStaffIndex];
+    
+
+    if(type == "job"){
+      //use the state value to figure out what happens next...
+      this.jobClicked = true;
+      //set data about selected job...
+      this.currentJobObject = object;
+      this.currentJobIndex = index;
+      
+    }
+
+    
+    
+
+    //now that values are set, see if we can complete the action...
+    if(this.jobClicked && this.staffClicked){
+      //todo can be done by anyone; just moves the card into the planning phase...
+      if(this.currentJobObject.state == "todo"){
+        //copy it into the next column...
+        this.planning.push(this.currentJobObject);
+        //and remove it from the original array...
+        this.todo.splice(this.currentJobIndex, 1);
+      }
+    }
+
+  }
 
   //make a new job object...
   buildRandomJob(): any{
