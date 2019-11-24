@@ -14,7 +14,7 @@
     <div id="jobBoard" class="boardCell">
       TODO
 
-      <div v-for="(card, idx) in todo" v-bind:key="idx">
+      <div v-for="(card, idx) in todo" v-bind:key="idx" class="jobCard">
         <Card
           :projectName="card.title"
           :projectState="card.state"
@@ -27,7 +27,7 @@
     <div id="planning" class="boardCell">
       Planning
 
-      <div v-for="(card, idx) in planning" v-bind:key="idx">
+      <div v-for="(card, idx) in planning" v-bind:key="idx" class="jobCard">
         <Card
           :projectName="card.title"
           :projectState="card.state"
@@ -40,7 +40,7 @@
     <div id="coding" class="boardCell">
       Coding
 
-      <div v-for="(card, idx) in coding" v-bind:key="idx">
+      <div v-for="(card, idx) in coding" v-bind:key="idx" class="jobCard">
         <Card
           :projectName="card.title"
           :projectState="card.state"
@@ -53,7 +53,7 @@
     <div id="done" class="boardCell">
       Testing
 
-      <div v-for="(card, idx) in testing" v-bind:key="idx">
+      <div v-for="(card, idx) in testing" v-bind:key="idx" class="jobCard">
         <Card
           :projectName="card.title"
           :projectState="card.state"
@@ -207,56 +207,97 @@ export default class Main extends Vue {
 
     //now that values are set, see if we can complete the action...
     if(this.jobClicked && this.staffClicked){
-      //todo can be done by anyone; just moves the card into the planning phase...
-      if(this.currentJobObject.state == "todo"){
-        //update the item state to the next column...
-        this.currentJobObject.state = "planning";
-        //copy it into the next column...
-        this.planning.push(this.currentJobObject);
-        //and remove it from the original array...
-        //typescript is a little overzelous -- currentJobIndex is set along with jobClicked;
-        //might bundle all these into an object for refactor improvement...
-        if(this.currentJobIndex !== null){
-          this.todo.splice(this.currentJobIndex, 1);
-        }
-
-        //now we reset so we don't trigger the rest of the calls...
-        //reset the tracking...
-        this.resetClickState();
-
-        //increment a turn...
-        this.incrementTurn(1);
-      }
-
       //other types of task require a specific set of skills...
       //may refactor this as there is a lot of repeated code here...
-      if(this.currentJobObject.state == "planning"){
-        //see what the staff memeber can do; BAs can analyze things in planning...
-        if(this.findSkill("BA", this.staff[this.currentStaffIndex].skills)){
-          this.currentJobObject.state = "coding";
-          this.coding.push(this.currentJobObject);
-          if(this.currentJobIndex !== null){
-            this.planning.splice(this.currentJobIndex, 1);
-          }
-        }else{
-          //reset the job click...
-          this.resetJob();
-        }
-      } 
 
-      if(this.currentJobObject.state == "coding"){
-        //see what the staff memeber can do; BAs can analyze things in planning...
-        if("Coder" in this.staff[this.currentStaffIndex].skills){
-          this.currentJobObject.state = "testing";
-          this.testing.push(this.currentJobObject);
+        //todo can be done by anyone; just moves the card into the planning phase...
+        if(this.currentJobObject.state == "todo"){
+          //update the item state to the next column...
+          this.currentJobObject.state = "planning";
+          //copy it into the next column...
+          this.planning.push(this.currentJobObject);
+          //and remove it from the original array...
+          //typescript is a little overzelous -- currentJobIndex is set along with jobClicked;
+          //might bundle all these into an object for refactor improvement...
           if(this.currentJobIndex !== null){
-            this.coding.splice(this.currentJobIndex, 1);
+            this.todo.splice(this.currentJobIndex, 1);
           }
+
+          //now we reset so we don't trigger the rest of the calls...
+          //reset the tracking...
+          this.resetClickState();
+
+          //increment a turn...
+          this.incrementTurn(1);
+        }
+
+        //planning may result in multiple tasks being created; task is broken down and we can
+        //re-use the job name with a different 'type'
+        if(this.currentJobObject.state == "planning"){
+          //see what the staff memeber can do; BAs can analyze things in planning...
+          if(this.findSkill("BA", this.staff[this.currentStaffIndex].skills)){
+            this.currentJobObject.state = "coding";
+            this.coding.push(this.currentJobObject);
+            if(this.currentJobIndex !== null){
+              this.planning.splice(this.currentJobIndex, 1);
+            }
+
+            //now we reset so we don't trigger the rest of the calls...
+            //reset the tracking...
+            this.resetClickState();
+
+            //increment a turn...
+            this.incrementTurn(1);
+
+          }else{
+            //reset the job click...
+            this.resetJob();
+          }
+        }
+      
+        if(this.currentJobObject.state == "coding"){
+          //see what the staff memeber can do; BAs can analyze things in planning...
+          if(this.findSkill("Coder", this.staff[this.currentStaffIndex].skills)){
+            this.currentJobObject.state = "testing";
+            this.testing.push(this.currentJobObject);
+            if(this.currentJobIndex !== null){
+              this.coding.splice(this.currentJobIndex, 1);
+            }
+            //now we reset so we don't trigger the rest of the calls...
+            //reset the tracking...
+            this.resetClickState();
+
+            //increment a turn...
+            this.incrementTurn(1);
+          }else{
+            //reset the job click...
+            this.resetJob();
+          }
+        }
+
+        if(this.currentJobObject.state == "testing"){
+        //see what the staff memeber can do; BAs can analyze things in planning...
+        if(this.findSkill("Tester", this.staff[this.currentStaffIndex].skills)){
+          this.currentJobObject.state = "done";
+          if(this.currentJobIndex !== null){
+            this.testing.splice(this.currentJobIndex, 1);
+          }
+          //now we reset so we don't trigger the rest of the calls...
+          //reset the tracking...
+          this.resetClickState();
+
+          //increment a turn...
+          this.incrementTurn(1);
+
+          //now calculate the value this task provided...
+
+
         }else{
           //reset the job click...
           this.resetJob();
         }
-      } 
+      
+      }
 
     }
 
@@ -369,6 +410,10 @@ a {
   margin-right: 20px;
   display: inline-block;
   overflow: auto;
+}
+
+.jobCard {
+  cursor: pointer;
 }
 
 .staffSeats {
