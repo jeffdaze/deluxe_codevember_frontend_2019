@@ -32,6 +32,24 @@ TODO:
 
 -'timer' events can be good or bad
 
+-set up random jobs using defined method from JSON sets
+	-track job by name but not type as it flows through the workflow
+		-after planning, the job is split into some number of subtasks
+		-coding works on those; same number pass through to testing
+		-testing has a random chance to send back one or more bugs which appear in planning again...
+			-higher challenge rating means higher likelyhood of bugs etc, but also means higher payout
+
+-populate new staff into the 'TODO' column so player can choose staff chars to hire (need to show cost)
+	-can happen after you get funds or on a schedule?
+-create a set of turn based events (quarters are good; trade show; sales events; mergers etc)
+	-get some result when reaching a milestone?
+-create a set of random events as well ('weal or woe')
+-expand the office; increase the number of seats available
+-items to buy to allow for improving staff (training, and equipment)
+
+-add init phase to game to kick of the initial state
+-add funds when project parts are completed
+
 
 
 DESIGN:

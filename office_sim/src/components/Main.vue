@@ -189,14 +189,17 @@ export default class Main extends Vue {
       this.staffClicked = true;
       //set data about the selected staff...
       this.currentStaffIndex = index;
+
+      //handling for empty staff slot...
+      if(this.staff[this.currentStaffIndex] === undefined){
+        //present hiring options vs current funds...
+        //should this appear in the 'TODO' column? that might be easiest actually...
+        window.console.log("Empty staff seat");
+      }
     }
 
-    //some data for the items; staff will always come from staff
+    //some data for the items; staff will always come from staff array
     //the other arrays are set by the type...
-    if(this.currentStaffIndex){
-      let selectedStaff: any = this.staff[this.currentStaffIndex];
-    }
-    
     if(type == "job"){
       //use the state value to figure out what happens next...
       this.jobClicked = true;
@@ -428,6 +431,7 @@ a {
   height: 86px;
   border: 1px solid #333333;
   margin: 10px;
+  cursor: pointer;
 }
 
 .staffTitle {
