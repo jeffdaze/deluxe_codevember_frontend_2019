@@ -16,11 +16,12 @@
 
       <div v-for="(card, idx) in todo" v-bind:key="idx" class="jobCard">
         <Card
-          :projectName="card.title"
+          :projectName="card.title + ' ' + card.type"
           :projectState="card.state"
           :icon="card.icon"
           :challenge="card.challenge"
           @click.native="cardClick(idx, 'job', card)"
+          :class="{'activeClick': currentJobIndex == idx}"
         />
       </div>
     </div>
@@ -29,7 +30,7 @@
 
       <div v-for="(card, idx) in planning" v-bind:key="idx" class="jobCard">
         <Card
-          :projectName="card.title"
+          :projectName="card.title + ' ' + card.type"
           :projectState="card.state"
           :icon="card.icon"
           :challenge="card.challenge"
@@ -42,7 +43,7 @@
 
       <div v-for="(card, idx) in coding" v-bind:key="idx" class="jobCard">
         <Card
-          :projectName="card.title"
+          :projectName="card.title + ' ' + card.type"
           :projectState="card.state"
           :icon="card.icon"
           :challenge="card.challenge"
@@ -55,7 +56,7 @@
 
       <div v-for="(card, idx) in testing" v-bind:key="idx" class="jobCard">
         <Card
-          :projectName="card.title"
+          :projectName="card.title + ' ' + card.type"
           :projectState="card.state"
           :icon="card.icon"
           :challenge="card.challenge"
@@ -76,6 +77,7 @@
         v-for="employeeIndex in staffSeats"
         v-bind:key="employeeIndex"
         class="staffCard"
+        :class="{'activeClick': employeeIndex-1 == currentStaffIndex}"
         @click="cardClick(employeeIndex - 1, 'staff', {})"
       >
         <div v-if="staff[employeeIndex - 1]">
@@ -157,10 +159,10 @@ export default class Main extends Vue {
   todo: Array<any> = [
     {
       "title": "Hello World!",
+      "type": "Deploy",
       "icon": "globe",
       "state": "todo",
       "challenge": 1
-
     }
   ];
 
@@ -214,6 +216,7 @@ export default class Main extends Vue {
       //may refactor this as there is a lot of repeated code here...
 
         //todo can be done by anyone; just moves the card into the planning phase...
+        //this happens instantly; no timer needed...
         if(this.currentJobObject.state == "todo"){
           //update the item state to the next column...
           this.currentJobObject.state = "planning";
@@ -236,21 +239,40 @@ export default class Main extends Vue {
 
         //planning may result in multiple tasks being created; task is broken down and we can
         //re-use the job name with a different 'type'
+        //this takes some amount of time based on the staff skill and bonuses...
         if(this.currentJobObject.state == "planning"){
           //see what the staff memeber can do; BAs can analyze things in planning...
           if(this.findSkill("BA", this.staff[this.currentStaffIndex].skills)){
-            this.currentJobObject.state = "coding";
-            this.coding.push(this.currentJobObject);
-            if(this.currentJobIndex !== null){
-              this.planning.splice(this.currentJobIndex, 1);
-            }
 
-            //now we reset so we don't trigger the rest of the calls...
-            //reset the tracking...
-            this.resetClickState();
+            //run a timer and set the staff to 'disabled' to simulate them working on it...
+            //let's do 5 ticks...
+            let ticks:number = 5;
+            let currentTick: number = 0;
 
-            //increment a turn...
-            this.incrementTurn(1);
+            //capture 'this' to use within the timer...
+            let that = this;
+
+            let intervalTimer = setInterval(function(){
+              currentTick++;
+              window.console.log(currentTick);
+              if(ticks == currentTick){
+                clearInterval(intervalTimer);
+                that.currentJobObject.state = "coding";
+                that.coding.push(that.currentJobObject);
+                if(that.currentJobIndex !== null){
+                  that.planning.splice(that.currentJobIndex, 1);
+                }
+
+                //now we reset so we don't trigger the rest of the calls...
+                //reset the tracking...
+                that.resetClickState();
+
+                //increment a turn...
+                that.incrementTurn(1);
+              }
+            }, 1000)
+
+
 
           }else{
             //reset the job click...
@@ -448,5 +470,11 @@ a {
   margin-top:20px;
   text-align: center;
   color: rgb(199, 196, 196);
+}
+
+.activeClick {
+  border:1px solid #009900;
+  box-shadow: 0px 8px 13px 0px rgba(50, 50, 50, 0.75);
+  transition: all 0.5s;
 }
 </style>

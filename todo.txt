@@ -47,9 +47,9 @@ TODO:
 -expand the office; increase the number of seats available
 -items to buy to allow for improving staff (training, and equipment)
 
--add init phase to game to kick of the initial state
+-add init phase to game to kick off the initial state
 -add funds when project parts are completed
-
+-highlite card click and unset on fail
 
 
 DESIGN:
