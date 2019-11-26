@@ -4,6 +4,9 @@
     <div class="projectName">{{ projectName }}</div>
     <div class="projectState">{{ projectState }}</div>
     <div class="challenge">{{ challenge }}</div>
+    <div class="slotStyle">
+      <slot></slot>
+    </div>
   </div>
 </template>
 
@@ -29,5 +32,14 @@ export default class Card extends Vue {
   height: 70px;
   float: left;
   margin: 12px;
+  overflow: hidden;
+}
+
+.slotStyle{
+  position:relative;
+  top:-70px;
+  height:13px;
+  overflow: hidden;
+  opacity:0.2;
 }
 </style>

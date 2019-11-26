@@ -17,6 +17,16 @@ NOTES:
 	    -office sim? like gamedevstory?
 	    -build a really fancy form?
 
+-for the fancy CC interface, some validation can be done with:
+
+Card first numbers:
+
+3: American Express
+4: Visa
+5: MasterCard
+6: Discover
+
+
 TODO:
 -create character blocks
 	-cost to hire or recurring cost?

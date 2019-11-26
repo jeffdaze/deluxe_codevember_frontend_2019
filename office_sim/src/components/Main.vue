@@ -35,7 +35,12 @@
           :icon="card.icon"
           :challenge="card.challenge"
           @click.native="cardClick(idx, 'job', card)"
-        />
+        >
+        <Progress 
+            :total="card.staffObject.baseSpeed"
+            :currentVal="card.staffObject.currentTick"
+          />
+        </card>
       </div>
     </div>
     <div id="coding" class="boardCell">
@@ -48,7 +53,12 @@
           :icon="card.icon"
           :challenge="card.challenge"
           @click.native="cardClick(idx, 'job', card)"
-        />
+        >
+          <Progress 
+            :total="card.staffObject.baseSpeed"
+            :currentVal="card.staffObject.currentTick"
+          />
+        </Card>
       </div>
     </div>
     <div id="done" class="boardCell">
@@ -77,7 +87,7 @@
         v-for="employeeIndex in staffSeats"
         v-bind:key="employeeIndex"
         class="staffCard"
-        :class="{'activeClick': employeeIndex-1 == currentStaffIndex}"
+        :class="{'activeClick': employeeIndex-1 == currentStaffIndex, 'busyState': (staff[employeeIndex - 1] && staff[employeeIndex - 1].currentTick > 0)}"
         @click="cardClick(employeeIndex - 1, 'staff', {})"
       >
         <div v-if="staff[employeeIndex - 1]">
@@ -155,6 +165,21 @@ export default class Main extends Vue {
     
   }
 
+  //array of all employees with their skills and skill levels...
+  //kind of hate how it makes me use arrays and doesn't like duplicate keys...
+  staff: Array<any> = [
+    {
+      "type": "CEO",
+      "skills": [
+        {"title": "BA", "level": 1 },
+        {"title": "Coder", "level": 1 },
+        {"title": "Tester", "level": 1}
+      ],
+      "baseSpeed": 5,
+      "currentTick": 0
+    }
+  ]; 
+
   //jobs, training etc....
   todo: Array<any> = [
     {
@@ -162,18 +187,25 @@ export default class Main extends Vue {
       "type": "Deploy",
       "icon": "globe",
       "state": "todo",
-      "challenge": 1
+      "challenge": 1,
+      "staffObject": {
+        "baseSpeed": 10,
+        "currentTick": 0
+      } 
     }
   ];
 
+  //break down tasks into parts to work on...
   planning: Array<any> = [
 
   ];
 
+  //coding tasks...
   coding: Array<any> = [
 
   ];
 
+  //testing features that were coded...
   testing: Array<any> = [
 
   ];
@@ -197,6 +229,9 @@ export default class Main extends Vue {
         //present hiring options vs current funds...
         //should this appear in the 'TODO' column? that might be easiest actually...
         window.console.log("Empty staff seat");
+      }else if(this.staff[this.currentStaffIndex].currentTick != 0){
+        //this staff member is busy!
+        this.staffClicked = false;
       }
     }
 
@@ -244,20 +279,23 @@ export default class Main extends Vue {
           //see what the staff memeber can do; BAs can analyze things in planning...
           if(this.findSkill("BA", this.staff[this.currentStaffIndex].skills)){
 
-            //run a timer and set the staff to 'disabled' to simulate them working on it...
-            //let's do 5 ticks...
-            let ticks:number = 5;
-            let currentTick: number = 0;
-
+            //staff has the skills to do this task; add them to the task...
+            //copy the staff object into the card task...
+            this.currentJobObject.staffObject = this.staff[this.currentStaffIndex];
             //capture 'this' to use within the timer...
-            let that = this;
+            let that: any = this;
 
-            let intervalTimer = setInterval(function(){
-              currentTick++;
-              window.console.log(currentTick);
-              if(ticks == currentTick){
+            let ticks:number = that.currentJobObject.staffObject.baseSpeed;
+            that.currentJobObject.staffObject.currentTick++;
+
+            let intervalTimer:any = setInterval(function(){
+              //run a timer and set the staff to 'disabled' to simulate them working on it...  
+              that.currentJobObject.staffObject.currentTick++;
+              //reset once our task is complete...
+              if(that.currentJobObject.staffObject.currentTick > ticks){
                 clearInterval(intervalTimer);
                 that.currentJobObject.state = "coding";
+                that.currentJobObject.staffObject.currentTick = 0;
                 that.coding.push(that.currentJobObject);
                 if(that.currentJobIndex !== null){
                   that.planning.splice(that.currentJobIndex, 1);
@@ -388,20 +426,6 @@ export default class Main extends Vue {
     this.currentEvent = "First Quarter Report";
   }
 
-
-  //array of all employees with their skills and skill levels...
-  //kind of hate how it makes me use arrays and doesn't like duplicate keys...
-  staff: Array<any> = [
-    {
-      "type": "CEO",
-      "skills": [
-        {"title": "BA", "level": 1 },
-        {"title": "Coder", "level": 1 },
-        {"title": "Tester", "level": 1}
-      ]
-    }
-  ]; 
-
   addFunds(amt: number): void {
       this.$store.commit('addFunds', amt);
   }
@@ -477,4 +501,12 @@ a {
   box-shadow: 0px 8px 13px 0px rgba(50, 50, 50, 0.75);
   transition: all 0.5s;
 }
+
+.busyState {
+  border: 1px solid orange;
+  box-shadow: none;
+  cursor: progress;
+  transition: all 0.1s;
+}
+
 </style>
