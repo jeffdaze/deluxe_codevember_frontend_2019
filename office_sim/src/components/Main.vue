@@ -8,7 +8,7 @@
     <button @click="init()">Init</button>
 
     <div class="currentFunds">
-      Current Funds: {{ this.$store.getters.getFunds }}
+      Current Funds: ${{ this.$store.getters.getFunds }}
     </div>
 
     <div id="jobBoard" class="boardCell">
@@ -21,7 +21,7 @@
           :icon="card.icon"
           :challenge="card.challenge"
           @click.native="cardClick(idx, 'job', card)"
-          :class="{'activeClick': currentJobIndex == idx}"
+          :class="{'activeClick': card.activeIndex != null}"
         />
       </div>
     </div>
@@ -35,9 +35,10 @@
           :icon="card.icon"
           :challenge="card.challenge"
           @click.native="cardClick(idx, 'job', card)"
+          :class="{'activeClick': card.activeIndex != null}"
         >
         <Progress 
-            :total="card.staffObject.baseSpeed"
+            :total="card.staffObject.baseEffort"
             :currentVal="card.staffObject.currentTick"
           />
         </card>
@@ -53,9 +54,10 @@
           :icon="card.icon"
           :challenge="card.challenge"
           @click.native="cardClick(idx, 'job', card)"
+          :class="{'activeClick': card.activeIndex != null}"
         >
           <Progress 
-            :total="card.staffObject.baseSpeed"
+            :total="card.staffObject.baseEffort"
             :currentVal="card.staffObject.currentTick"
           />
         </Card>
@@ -71,6 +73,7 @@
           :icon="card.icon"
           :challenge="card.challenge"
           @click.native="cardClick(idx, 'job', card)"
+          :class="{'activeClick': card.activeIndex != null}"
         />
       </div>
     </div>
@@ -155,14 +158,30 @@ export default class Main extends Vue {
   projectIconList = iconList;
 
   //random gen test...
-  generateName(): void {
+  generateName(challenge:number = 1): void {
 
-    let pName = this.projectNameList[Math.floor(Math.random()*this.projectNameList.length)];
-    let pType = this.projectTypeList[Math.floor(Math.random()*this.projectTypeList.length)];
+    let pName: string = this.projectNameList[Math.floor(Math.random()*this.projectNameList.length)];
+    let pType: string = this.projectTypeList[Math.floor(Math.random()*this.projectTypeList.length)];
+    let pIcon: Array<string> = this.projectIconList[Math.floor(Math.random()*this.projectIconList.length)];
 
-    this.projectEntityIcon = this.projectIconList[Math.floor(Math.random()*this.projectIconList.length)];
+    this.projectEntityIcon = pIcon;
     this.projectEntity = pName +" "+ pType;
     
+    let pObject: any = {
+      "title": pName,
+      "type": pType,
+      "icon": pIcon,
+      "state": "todo",
+      "activeIndex": null,
+      "challenge": challenge,
+      "staffObject": {
+        "baseEffort": 10,
+        "currentTick": 0
+      }
+    };
+
+    this.todo.push(pObject);
+
   }
 
   //array of all employees with their skills and skill levels...
@@ -175,7 +194,8 @@ export default class Main extends Vue {
         {"title": "Coder", "level": 1 },
         {"title": "Tester", "level": 1}
       ],
-      "baseSpeed": 5,
+      "baseEffort": 20,
+      "baseSpeed": 300,
       "currentTick": 0
     }
   ]; 
@@ -187,9 +207,10 @@ export default class Main extends Vue {
       "type": "Deploy",
       "icon": "globe",
       "state": "todo",
+      "activeIndex": null,
       "challenge": 1,
       "staffObject": {
-        "baseSpeed": 10,
+        "baseEffort": 10,
         "currentTick": 0
       } 
     }
@@ -212,9 +233,6 @@ export default class Main extends Vue {
 
   //board manipulation methods...
   cardClick(index: number, type: string, object: any): void{
-
-    window.console.log("clicked:", index, type, object);
-
     //figure out what kind of card this is and parse it appropriately;
     //also set flags to make sure we can perform the job with the person selected...
     //clicked on an employee
@@ -239,9 +257,12 @@ export default class Main extends Vue {
     //the other arrays are set by the type...
     if(type == "job"){
       //use the state value to figure out what happens next...
+      this.unsetActiveJobs();
       this.jobClicked = true;
       //set data about selected job...
       this.currentJobObject = object;
+      this.currentJobObject.activeIndex = index;
+      //@TODO refactor -- remove this value; it is superceded by the above property...
       this.currentJobIndex = index;
     }
 
@@ -260,8 +281,10 @@ export default class Main extends Vue {
           //and remove it from the original array...
           //typescript is a little overzelous -- currentJobIndex is set along with jobClicked;
           //might bundle all these into an object for refactor improvement...
-          if(this.currentJobIndex !== null){
-            this.todo.splice(this.currentJobIndex, 1);
+          if(this.currentJobObject.activeIndex !== null){
+            this.todo.splice(this.currentJobObject.activeIndex, 1);
+            //reset the click state...
+            this.currentJobObject.activeIndex = null;
           }
 
           //now we reset so we don't trigger the rest of the calls...
@@ -276,8 +299,12 @@ export default class Main extends Vue {
         //re-use the job name with a different 'type'
         //this takes some amount of time based on the staff skill and bonuses...
         if(this.currentJobObject.state == "planning"){
+          this.doTask(this.currentJobObject.state);
+        }
+        /*
+        if(this.currentJobObject.state == "planning"){
           //see what the staff memeber can do; BAs can analyze things in planning...
-          if(this.findSkill("BA", this.staff[this.currentStaffIndex].skills)){
+          if(this.staff[this.currentStaffIndex] && this.findSkill("BA", this.staff[this.currentStaffIndex].skills)){
 
             //staff has the skills to do this task; add them to the task...
             //copy the staff object into the card task...
@@ -285,7 +312,7 @@ export default class Main extends Vue {
             //capture 'this' to use within the timer...
             let that: any = this;
 
-            let ticks:number = that.currentJobObject.staffObject.baseSpeed;
+            let ticks:number = that.currentJobObject.staffObject.baseEffort;
             that.currentJobObject.staffObject.currentTick++;
 
             let intervalTimer:any = setInterval(function(){
@@ -308,15 +335,14 @@ export default class Main extends Vue {
                 //increment a turn...
                 that.incrementTurn(1);
               }
-            }, 1000)
-
-
+            }, this.currentJobObject.staffObject.baseSpeed)
 
           }else{
             //reset the job click...
             this.resetJob();
           }
         }
+        */
       
         if(this.currentJobObject.state == "coding"){
           //see what the staff memeber can do; BAs can analyze things in planning...
@@ -345,15 +371,19 @@ export default class Main extends Vue {
           if(this.currentJobIndex !== null){
             this.testing.splice(this.currentJobIndex, 1);
           }
+
+          //now calculate the value this task provided...
+          let payment: number = this.currentJobObject.challenge * (Math.floor(Math.random() * 200) + 100);
+          window.console.log(payment);
+
+          this.addFunds(payment);
+
           //now we reset so we don't trigger the rest of the calls...
           //reset the tracking...
           this.resetClickState();
 
           //increment a turn...
           this.incrementTurn(1);
-
-          //now calculate the value this task provided...
-
 
         }else{
           //reset the job click...
@@ -374,6 +404,64 @@ export default class Main extends Vue {
     }
     return false;
 
+  }
+
+  doTask(taskType: string): void{
+    //some tables to look up which skill goes with which action...
+    let skillMap: any = {
+      'planning': 'BA',
+      'coding': 'Coder',
+      'testing': 'Tester'
+    };
+
+    //now outline sequence of next states...
+    //starts at 'planning'; TODO is already handled...
+    let stateSet: any = {
+      'planning': 'coding',
+      'coding': 'testing',
+      'testing': 'done'
+    };
+
+    //check if the current staff can perform this task...
+    if(this.staff[this.currentStaffIndex] && this.findSkill(skillMap[taskType], this.staff[this.currentStaffIndex].skills)){
+      //staff has the skills to do this task; add them to the task...
+      //copy the staff object into the card task...
+      this.currentJobObject.staffObject = this.staff[this.currentStaffIndex];
+      //capture 'this' to use within the timer...
+      let that: any = this;
+
+      let ticks:number = that.currentJobObject.staffObject.baseEffort;
+      that.currentJobObject.staffObject.currentTick++;
+
+      let intervalTimer:any = setInterval(function(){
+        //run a timer and set the staff to 'disabled' to simulate them working on it...  
+        that.currentJobObject.staffObject.currentTick++;
+        //reset once our task is complete...
+        if(that.currentJobObject.staffObject.currentTick > ticks){
+          clearInterval(intervalTimer);
+          //set the next column for this task...
+          that.currentJobObject.state = stateSet[taskType];
+          that.currentJobObject.staffObject.currentTick = 0;
+          that.coding.push(that.currentJobObject);
+          if(that.currentJobIndex !== null){
+            that[taskType].splice(that.currentJobIndex, 1);
+            that.currentJobObject.activeIndex = null;
+          }
+
+          //now we reset so we don't trigger the rest of the calls...
+          //reset the tracking...
+          that.resetClickState();
+
+          //increment a turn...
+          that.incrementTurn(1);
+        }
+      }, this.currentJobObject.staffObject.baseSpeed)
+
+    }else{
+      //reset the job click...
+      this.resetJob();
+    }
+    
   }
 
   incrementTurn(count: number): void{
@@ -404,14 +492,20 @@ export default class Main extends Vue {
     this.currentJobObject = {};
   }
 
-  //make a new job object...
-  buildRandomJob(): any{
-    //might switch this to use an interface once I've settled on a job object format...
-    let jobObj: any = {
-      
+  unsetActiveJobs(): void{
+    //unset activeIndex in all objects within todo, planning, coding, testing...
+    let columnSet: Array<string> = [
+      'todo',
+      'planning',
+      'coding',
+      'testing'
+    ];
+    for(let set in columnSet){
+      let setName: string = columnSet[set]; 
+      for(let x in this[setName]){
+        this[setName][x].activeIndex = null;
+      }
     }
-
-    return jobObj;
   }
 
   addJob(arr: Array<any>): void {
