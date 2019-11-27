@@ -3,7 +3,7 @@
     <div v-if="projectEntityIcon != ''">
       {{ projectEntity }} <font-awesome-icon :icon="projectEntityIcon" />
     </div>
-    <button @click="generateName()">Generate Random Project</button>
+    <button @click="addJob('todo')">Generate Random Project</button>
     <button @click="addFunds(10)">Add funds $10</button>
     <button @click="init()">Init</button>
 
@@ -74,7 +74,12 @@
           :challenge="card.challenge"
           @click.native="cardClick(idx, 'job', card)"
           :class="{'activeClick': card.activeIndex != null}"
-        />
+        >
+        <Progress 
+            :total="card.staffObject.baseEffort"
+            :currentVal="card.staffObject.currentTick"
+          />
+        </Card>
       </div>
     </div>
     <div class="eventStream">
@@ -158,7 +163,7 @@ export default class Main extends Vue {
   projectIconList = iconList;
 
   //random gen test...
-  generateName(challenge:number = 1): void {
+  generateName(challenge:number = 1): any {
 
     let pName: string = this.projectNameList[Math.floor(Math.random()*this.projectNameList.length)];
     let pType: string = this.projectTypeList[Math.floor(Math.random()*this.projectTypeList.length)];
@@ -180,7 +185,7 @@ export default class Main extends Vue {
       }
     };
 
-    this.todo.push(pObject);
+    return pObject;
 
   }
 
@@ -263,7 +268,7 @@ export default class Main extends Vue {
       this.currentJobObject = object;
       this.currentJobObject.activeIndex = index;
       //@TODO refactor -- remove this value; it is superceded by the above property...
-      this.currentJobIndex = index;
+      //this.currentJobIndex = index;
     }
 
     //now that values are set, see if we can complete the action...
@@ -298,9 +303,8 @@ export default class Main extends Vue {
         //planning may result in multiple tasks being created; task is broken down and we can
         //re-use the job name with a different 'type'
         //this takes some amount of time based on the staff skill and bonuses...
-        if(this.currentJobObject.state == "planning"){
-          this.doTask(this.currentJobObject.state);
-        }
+        this.doTask(this.currentJobObject.state);
+
         /*
         if(this.currentJobObject.state == "planning"){
           //see what the staff memeber can do; BAs can analyze things in planning...
@@ -342,7 +346,7 @@ export default class Main extends Vue {
             this.resetJob();
           }
         }
-        */
+        
       
         if(this.currentJobObject.state == "coding"){
           //see what the staff memeber can do; BAs can analyze things in planning...
@@ -391,6 +395,7 @@ export default class Main extends Vue {
         }
       
       }
+      */
 
     }
 
@@ -426,12 +431,17 @@ export default class Main extends Vue {
     if(this.staff[this.currentStaffIndex] && this.findSkill(skillMap[taskType], this.staff[this.currentStaffIndex].skills)){
       //staff has the skills to do this task; add them to the task...
       //copy the staff object into the card task...
-      this.currentJobObject.staffObject = this.staff[this.currentStaffIndex];
+      //@TODO convert this to a clone rather than copy by reference?
+      //this.currentJobObject.staffObject = this.staff[this.currentStaffIndex];
+
+      //try an instance rather than pointer...
+      this.currentJobObject.staffObject = JSON.parse(JSON.stringify(this.staff[this.currentStaffIndex]));
+
+      let ticks:number = this.currentJobObject.staffObject.baseEffort;
+      this.currentJobObject.staffObject.currentTick++;
+
       //capture 'this' to use within the timer...
       let that: any = this;
-
-      let ticks:number = that.currentJobObject.staffObject.baseEffort;
-      that.currentJobObject.staffObject.currentTick++;
 
       let intervalTimer:any = setInterval(function(){
         //run a timer and set the staff to 'disabled' to simulate them working on it...  
@@ -442,10 +452,23 @@ export default class Main extends Vue {
           //set the next column for this task...
           that.currentJobObject.state = stateSet[taskType];
           that.currentJobObject.staffObject.currentTick = 0;
-          that.coding.push(that.currentJobObject);
-          if(that.currentJobIndex !== null){
-            that[taskType].splice(that.currentJobIndex, 1);
+          if(stateSet[taskType] != 'done'){
+            that[stateSet[taskType]].push(that.currentJobObject);
+          }
+        
+          if(that.currentJobObject.activeIndex !== null){
+            that[taskType].splice(that.currentJobObject.activeIndex, 1);
             that.currentJobObject.activeIndex = null;
+          }
+
+          ///handle done state here...
+          if(stateSet[taskType] == 'done'){
+            //@TODO -- need to add failure state where there are more bugs produced as a result...
+
+            //success state
+            //now calculate the value this task provided...
+            let payment: number = that.currentJobObject.challenge * (Math.floor(Math.random() * 200) + 100);
+            that.addFunds(payment);
           }
 
           //now we reset so we don't trigger the rest of the calls...
@@ -508,10 +531,10 @@ export default class Main extends Vue {
     }
   }
 
-  addJob(arr: Array<any>): void {
+  addJob(col: string): void {
     //this should generate a job object for us to add to the array...
-    let newJob = this.buildRandomJob();
-    arr.push(newJob);
+    let newJob = this.generateName();
+    this[col].push(newJob);
   }
 
   init(): void{
