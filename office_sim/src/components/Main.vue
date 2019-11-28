@@ -38,8 +38,8 @@
           :class="{'activeClick': card.activeIndex != null}"
         >
         <Progress 
-            :total="card.staffObject.baseEffort"
-            :currentVal="card.staffObject.currentTick"
+            :total="card.baseEffort"
+            :current="card.currentTick"
           />
         </card>
       </div>
@@ -57,8 +57,8 @@
           :class="{'activeClick': card.activeIndex != null}"
         >
           <Progress 
-            :total="card.staffObject.baseEffort"
-            :currentVal="card.staffObject.currentTick"
+            :total="card.baseEffort"
+            :current="card.currentTick"
           />
         </Card>
       </div>
@@ -76,8 +76,8 @@
           :class="{'activeClick': card.activeIndex != null}"
         >
         <Progress 
-            :total="card.staffObject.baseEffort"
-            :currentVal="card.staffObject.currentTick"
+            :total="card.baseEffort"
+            :current="card.currentTick"
           />
         </Card>
       </div>
@@ -86,7 +86,7 @@
       <Progress
         :eventLabel="currentEvent"
         :total="currentTurnLimit"
-        :currentVal="currentTurnCount"
+        :current="currentTurnCount"
       />
     </div>
 
@@ -95,7 +95,7 @@
         v-for="employeeIndex in staffSeats"
         v-bind:key="employeeIndex"
         class="staffCard"
-        :class="{'activeClick': employeeIndex-1 == currentStaffIndex, 'busyState': (staff[employeeIndex - 1] && staff[employeeIndex - 1].currentTick > 0)}"
+        :class="{'activeClick': employeeIndex-1 == currentStaffIndex, 'busyState': (staff[employeeIndex - 1] && staff[employeeIndex - 1].working)}"
         @click="cardClick(employeeIndex - 1, 'staff', {})"
       >
         <div v-if="staff[employeeIndex - 1]">
@@ -179,10 +179,8 @@ export default class Main extends Vue {
       "state": "todo",
       "activeIndex": null,
       "challenge": challenge,
-      "staffObject": {
-        "baseEffort": 10,
-        "currentTick": 0
-      }
+      "currentTick": 0,
+      "baseEffort": 0
     };
 
     return pObject;
@@ -199,14 +197,15 @@ export default class Main extends Vue {
         {"title": "Coder", "level": 1 },
         {"title": "Tester", "level": 1}
       ],
+      "working": false,
       "baseEffort": 20,
-      "baseSpeed": 300,
-      "currentTick": 0
+      "baseSpeed": 300
     }
   ]; 
 
   //jobs, training etc....
   todo: Array<any> = [
+    /*
     {
       "title": "Hello World!",
       "type": "Deploy",
@@ -219,6 +218,7 @@ export default class Main extends Vue {
         "currentTick": 0
       } 
     }
+    */
   ];
 
   //break down tasks into parts to work on...
@@ -252,7 +252,7 @@ export default class Main extends Vue {
         //present hiring options vs current funds...
         //should this appear in the 'TODO' column? that might be easiest actually...
         window.console.log("Empty staff seat");
-      }else if(this.staff[this.currentStaffIndex].currentTick != 0){
+      }else if(this.staff[this.currentStaffIndex].working){
         //this staff member is busy!
         this.staffClicked = false;
       }
@@ -267,6 +267,9 @@ export default class Main extends Vue {
       //set data about selected job...
       this.currentJobObject = object;
       this.currentJobObject.activeIndex = index;
+
+      window.console.log(object, index);
+
       //@TODO refactor -- remove this value; it is superceded by the above property...
       //this.currentJobIndex = index;
     }
@@ -279,6 +282,8 @@ export default class Main extends Vue {
         //todo can be done by anyone; just moves the card into the planning phase...
         //this happens instantly; no timer needed...
         if(this.currentJobObject.state == "todo"){
+          //free to move items from todo; this may include hiring new staff or augmenting staff with training / items...
+        
           //update the item state to the next column...
           this.currentJobObject.state = "planning";
           //copy it into the next column...
@@ -295,107 +300,12 @@ export default class Main extends Vue {
           //now we reset so we don't trigger the rest of the calls...
           //reset the tracking...
           this.resetClickState();
-
-          //increment a turn...
-          this.incrementTurn(1);
         }
 
         //planning may result in multiple tasks being created; task is broken down and we can
         //re-use the job name with a different 'type'
         //this takes some amount of time based on the staff skill and bonuses...
         this.doTask(this.currentJobObject.state);
-
-        /*
-        if(this.currentJobObject.state == "planning"){
-          //see what the staff memeber can do; BAs can analyze things in planning...
-          if(this.staff[this.currentStaffIndex] && this.findSkill("BA", this.staff[this.currentStaffIndex].skills)){
-
-            //staff has the skills to do this task; add them to the task...
-            //copy the staff object into the card task...
-            this.currentJobObject.staffObject = this.staff[this.currentStaffIndex];
-            //capture 'this' to use within the timer...
-            let that: any = this;
-
-            let ticks:number = that.currentJobObject.staffObject.baseEffort;
-            that.currentJobObject.staffObject.currentTick++;
-
-            let intervalTimer:any = setInterval(function(){
-              //run a timer and set the staff to 'disabled' to simulate them working on it...  
-              that.currentJobObject.staffObject.currentTick++;
-              //reset once our task is complete...
-              if(that.currentJobObject.staffObject.currentTick > ticks){
-                clearInterval(intervalTimer);
-                that.currentJobObject.state = "coding";
-                that.currentJobObject.staffObject.currentTick = 0;
-                that.coding.push(that.currentJobObject);
-                if(that.currentJobIndex !== null){
-                  that.planning.splice(that.currentJobIndex, 1);
-                }
-
-                //now we reset so we don't trigger the rest of the calls...
-                //reset the tracking...
-                that.resetClickState();
-
-                //increment a turn...
-                that.incrementTurn(1);
-              }
-            }, this.currentJobObject.staffObject.baseSpeed)
-
-          }else{
-            //reset the job click...
-            this.resetJob();
-          }
-        }
-        
-      
-        if(this.currentJobObject.state == "coding"){
-          //see what the staff memeber can do; BAs can analyze things in planning...
-          if(this.findSkill("Coder", this.staff[this.currentStaffIndex].skills)){
-            this.currentJobObject.state = "testing";
-            this.testing.push(this.currentJobObject);
-            if(this.currentJobIndex !== null){
-              this.coding.splice(this.currentJobIndex, 1);
-            }
-            //now we reset so we don't trigger the rest of the calls...
-            //reset the tracking...
-            this.resetClickState();
-
-            //increment a turn...
-            this.incrementTurn(1);
-          }else{
-            //reset the job click...
-            this.resetJob();
-          }
-        }
-
-        if(this.currentJobObject.state == "testing"){
-        //see what the staff memeber can do; BAs can analyze things in planning...
-        if(this.findSkill("Tester", this.staff[this.currentStaffIndex].skills)){
-          this.currentJobObject.state = "done";
-          if(this.currentJobIndex !== null){
-            this.testing.splice(this.currentJobIndex, 1);
-          }
-
-          //now calculate the value this task provided...
-          let payment: number = this.currentJobObject.challenge * (Math.floor(Math.random() * 200) + 100);
-          window.console.log(payment);
-
-          this.addFunds(payment);
-
-          //now we reset so we don't trigger the rest of the calls...
-          //reset the tracking...
-          this.resetClickState();
-
-          //increment a turn...
-          this.incrementTurn(1);
-
-        }else{
-          //reset the job click...
-          this.resetJob();
-        }
-      
-      }
-      */
 
     }
 
@@ -435,27 +345,35 @@ export default class Main extends Vue {
       //this.currentJobObject.staffObject = this.staff[this.currentStaffIndex];
 
       //try an instance rather than pointer...
-      this.currentJobObject.staffObject = JSON.parse(JSON.stringify(this.staff[this.currentStaffIndex]));
+      this.currentJobObject.baseEffort = this.staff[this.currentStaffIndex].baseEffort;
 
-      let ticks:number = this.currentJobObject.staffObject.baseEffort;
-      this.currentJobObject.staffObject.currentTick++;
+      let ticks:number = this.currentJobObject.baseEffort;
+      this.currentJobObject.currentTick++;
+
+      //also increment the currentTick in the staff object; might refactor this to be a flag...
+      this.staff[this.currentStaffIndex].working = true;
 
       //capture 'this' to use within the timer...
       let that: any = this;
 
       let intervalTimer:any = setInterval(function(){
         //run a timer and set the staff to 'disabled' to simulate them working on it...  
-        that.currentJobObject.staffObject.currentTick++;
+        that.currentJobObject.currentTick++;
+
         //reset once our task is complete...
-        if(that.currentJobObject.staffObject.currentTick > ticks){
+        if(that.currentJobObject.currentTick > ticks){
           clearInterval(intervalTimer);
+          that.currentJobObject.currentTick = 0;
+
           //set the next column for this task...
           that.currentJobObject.state = stateSet[taskType];
-          that.currentJobObject.staffObject.currentTick = 0;
+          
           if(stateSet[taskType] != 'done'){
             that[stateSet[taskType]].push(that.currentJobObject);
           }
         
+          that.staff[that.currentStaffIndex].working = false;
+
           if(that.currentJobObject.activeIndex !== null){
             that[taskType].splice(that.currentJobObject.activeIndex, 1);
             that.currentJobObject.activeIndex = null;
@@ -478,7 +396,7 @@ export default class Main extends Vue {
           //increment a turn...
           that.incrementTurn(1);
         }
-      }, this.currentJobObject.staffObject.baseSpeed)
+      }, this.staff[this.currentStaffIndex].baseSpeed)
 
     }else{
       //reset the job click...
