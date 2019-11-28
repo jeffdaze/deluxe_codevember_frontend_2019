@@ -35,7 +35,7 @@
           :icon="card.icon"
           :challenge="card.challenge"
           @click.native="cardClick(idx, 'job', card)"
-          :class="{'activeClick': card.activeIndex != null}"
+          :class="{'activeClick': card.activeIndex != null, 'busyState': card.currentTick > 0}"
         >
         <Progress 
             :total="card.baseEffort"
@@ -54,7 +54,7 @@
           :icon="card.icon"
           :challenge="card.challenge"
           @click.native="cardClick(idx, 'job', card)"
-          :class="{'activeClick': card.activeIndex != null}"
+          :class="{'activeClick': card.activeIndex != null, 'busyState': card.currentTick > 0}"
         >
           <Progress 
             :total="card.baseEffort"
@@ -73,7 +73,7 @@
           :icon="card.icon"
           :challenge="card.challenge"
           @click.native="cardClick(idx, 'job', card)"
-          :class="{'activeClick': card.activeIndex != null}"
+          :class="{'activeClick': card.activeIndex != null, 'busyState': card.currentTick > 0}"
         >
         <Progress 
             :total="card.baseEffort"

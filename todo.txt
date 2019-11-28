@@ -61,6 +61,23 @@ TODO:
 -add funds when project parts are completed
 -highlite card click and unset on fail
 
+-archetectural changes:
+	-track staff in an array so I can set unset busy state
+	-check that the objects for jobs are tracking properly
+	-create new objects for:
+		-staff
+		-items
+		-training
+	-create a new component for the columns built from what's already there.
+
+	-create concepts / values for:
+		-time events (eg quarters; trade shows etc)
+			-figure out what happens as a result of these events (gain money? gain stat increases for staff? new staff? better projects? items? training?)
+		-creating bugs as a result of testing -- need to cycle things back if there are bugs!
+			-value association with each job; you make more if it is completed without bugs!
+			-need to come up with some calculations for initial job value and then distributing the value to the bugs...
+				-linked bugs for a whole project? ie only get money if the whole 'task' is done?
+
 
 DESIGN:
 -office sim
