@@ -62,6 +62,8 @@ TODO:
 -highlite card click and unset on fail
 
 -archetectural changes:
+	-need to improve slice operations; arrays can change independently so I'll need to reference tiles specifically!
+		-perhaps use some kind of ID rather than array index to track items...
 	-track staff in an array so I can set unset busy state
 	-check that the objects for jobs are tracking properly
 	-create new objects for:

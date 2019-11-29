@@ -178,6 +178,7 @@ export default class Main extends Vue {
       "icon": pIcon,
       "state": "todo",
       "activeIndex": null,
+      "activeStaff": null,
       "challenge": challenge,
       "currentTick": 0,
       "baseEffort": 0
@@ -267,17 +268,15 @@ export default class Main extends Vue {
       //set data about selected job...
       this.currentJobObject = object;
       this.currentJobObject.activeIndex = index;
-
-      window.console.log(object, index);
-
-      //@TODO refactor -- remove this value; it is superceded by the above property...
-      //this.currentJobIndex = index;
     }
 
     //now that values are set, see if we can complete the action...
     if(this.jobClicked && this.staffClicked){
       //other types of task require a specific set of skills...
       //may refactor this as there is a lot of repeated code here...
+
+      //assign a staff member to this job...
+      this.currentJobObject.activeStaff = this.currentStaffIndex;
 
         //todo can be done by anyone; just moves the card into the planning phase...
         //this happens instantly; no timer needed...
@@ -338,46 +337,48 @@ export default class Main extends Vue {
     };
 
     //check if the current staff can perform this task...
-    if(this.staff[this.currentStaffIndex] && this.findSkill(skillMap[taskType], this.staff[this.currentStaffIndex].skills)){
+    if(this.staff[this.currentJobObject.activeStaff] && this.findSkill(skillMap[taskType], this.staff[this.currentJobObject.activeStaff].skills)){
       //staff has the skills to do this task; add them to the task...
       //copy the staff object into the card task...
       //@TODO convert this to a clone rather than copy by reference?
-      //this.currentJobObject.staffObject = this.staff[this.currentStaffIndex];
+      
+      //these are the indicies where we find the tiles we're working with directly...
+      //get the job object reference here...
+      let jobInstance = this[taskType][this.currentJobObject.activeIndex];
+      let staffInstance = this.staff[this.currentStaffIndex];
 
-      //try an instance rather than pointer...
-      this.currentJobObject.baseEffort = this.staff[this.currentStaffIndex].baseEffort;
+      jobInstance.baseEffort = staffInstance.baseEffort;
 
-      let ticks:number = this.currentJobObject.baseEffort;
-      this.currentJobObject.currentTick++;
+      let ticks:number = jobInstance.baseEffort;
+      jobInstance.currentTick++;
 
-      //also increment the currentTick in the staff object; might refactor this to be a flag...
-      this.staff[this.currentStaffIndex].working = true;
+      //set working flag for the staff member associated with the job...
+      staffInstance.working = true;
 
       //capture 'this' to use within the timer...
       let that: any = this;
 
       let intervalTimer:any = setInterval(function(){
         //run a timer and set the staff to 'disabled' to simulate them working on it...  
-        that.currentJobObject.currentTick++;
+        jobInstance.currentTick++;
 
         //reset once our task is complete...
-        if(that.currentJobObject.currentTick > ticks){
+        if(jobInstance.currentTick > ticks){
           clearInterval(intervalTimer);
-          that.currentJobObject.currentTick = 0;
+          jobInstance.currentTick = 0;
 
           //set the next column for this task...
-          that.currentJobObject.state = stateSet[taskType];
+          jobInstance.state = stateSet[taskType];
           
           if(stateSet[taskType] != 'done'){
-            that[stateSet[taskType]].push(that.currentJobObject);
+            that[stateSet[taskType]].push(jobInstance);
           }
-        
-          that.staff[that.currentStaffIndex].working = false;
 
-          if(that.currentJobObject.activeIndex !== null){
-            that[taskType].splice(that.currentJobObject.activeIndex, 1);
-            that.currentJobObject.activeIndex = null;
-          }
+          staffInstance.working = false;
+          that[taskType].splice(jobInstance.activeIndex, 1);
+          jobInstance.activeIndex = null;
+          jobInstance.activeStaff = null;
+          
 
           ///handle done state here...
           if(stateSet[taskType] == 'done'){
@@ -385,7 +386,7 @@ export default class Main extends Vue {
 
             //success state
             //now calculate the value this task provided...
-            let payment: number = that.currentJobObject.challenge * (Math.floor(Math.random() * 200) + 100);
+            let payment: number = jobInstance.challenge * (Math.floor(Math.random() * 200) + 100);
             that.addFunds(payment);
           }
 
@@ -396,7 +397,7 @@ export default class Main extends Vue {
           //increment a turn...
           that.incrementTurn(1);
         }
-      }, this.staff[this.currentStaffIndex].baseSpeed)
+      }, this.staff[jobInstance.activeStaff].baseSpeed)
 
     }else{
       //reset the job click...
