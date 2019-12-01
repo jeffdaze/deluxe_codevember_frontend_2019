@@ -1,16 +1,8 @@
 <template>
   <div class="main">
-    <div v-if="projectEntityIcon != ''">
-      {{ projectEntity }} <font-awesome-icon :icon="projectEntityIcon" />
-    </div>
-    <button @click="addJob('todo')">Generate Random Project</button>
-    <button @click="addFunds(10)">Add funds $10</button>
-    <button @click="init()">Init</button>
-
     <div class="currentFunds">
       Current Funds: ${{ this.$store.getters.getFunds }}
     </div>
-
     <div id="jobBoard" class="boardCell">
       TODO
 
@@ -458,12 +450,24 @@ export default class Main extends Vue {
 
   init(): void{
     //set some values to start...
+
+    //the current number of turns until the event happens...
     this.currentTurnLimit = 10;
     this.currentEvent = "First Quarter Report";
+
+    //add some tasks to the todo column...
+    for(let i:number = 0;i<=10;i++){
+      this.addJob('todo');
+    }
   }
 
   addFunds(amt: number): void {
       this.$store.commit('addFunds', amt);
+  }
+
+  mounted() {
+    //run init here...
+    this.init();
   }
 
 }
