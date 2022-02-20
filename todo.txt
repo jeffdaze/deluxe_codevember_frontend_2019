@@ -95,6 +95,8 @@ DESIGN:
 		-new tech
 
 
+FUTURE:
+-add website for this so people can view it!
 
 DONE:
 -scaffold a vue project with SCSS, Typescript and UT
